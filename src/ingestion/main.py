@@ -29,9 +29,16 @@ app = FastAPI(title="Quake-Ledger Ingestion")
 usgs_fetcher = USGSFetcher()
 kandilli_fetcher = KandilliFetcher()
 
-# BQ client'ı process ömrünce tek instance — her istekte yeniden yaratmak
-# gereksiz bağlantı yükü yaratır. Modül import edildiğinde auth çözülür.
-bq_client = bigquery.Client()
+# BQ client'ı — lazy init: modül import edildiğinde değil, ilk kullanımda oluşur.
+# Böylece GCP credentials olmayan ortamlarda (test, lint) import hatası vermez.
+_bq_client: bigquery.Client | None = None
+
+
+def get_bq_client() -> bigquery.Client:
+    global _bq_client
+    if _bq_client is None:
+        _bq_client = bigquery.Client()
+    return _bq_client
 
 
 @app.get("/health")
@@ -166,15 +173,16 @@ async def do_ingest(source: str, fetcher):
     # 5. Load staging → BQ
     try:
         schema = USGS_SCHEMA if source == "usgs" else KANDILLI_SCHEMA
-        loaded = load_to_staging(bq_client, BQ_DATASET, source, staging_uri, schema)
+        bq = get_bq_client()
+        loaded = load_to_staging(bq, BQ_DATASET, source, staging_uri, schema)
         logger.info(f"Staging loaded: {loaded} rows")
 
         # 6. MERGE staging → raw
-        affected = merge_to_raw(bq_client, BQ_DATASET, source)
+        affected = merge_to_raw(bq, BQ_DATASET, source)
         logger.info(f"MERGE affected: {affected} rows")
 
         # 7. Truncate staging
-        truncate_staging(bq_client, BQ_DATASET, source)
+        truncate_staging(bq, BQ_DATASET, source)
     except Exception as e:
         logger.error(f"BigQuery pipeline failed for {source}: {e}")
         raise HTTPException(status_code=500, detail=f"BigQuery error: {e}")
