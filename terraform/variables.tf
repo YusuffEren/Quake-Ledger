@@ -27,6 +27,12 @@ variable "ingestion_schedule_kandilli" {
   description = "Kandilli ingestion cron schedule (UTC)."
 }
 
+variable "ingestion_schedule_emsc" {
+  type        = string
+  default     = "*/15 * * * *"
+  description = "EMSC ingestion cron schedule (UTC)."
+}
+
 variable "cloud_run_image" {
   type        = string
   description = "Ingestion container image URL (Artifact Registry). Zorunlu."

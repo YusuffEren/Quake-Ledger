@@ -17,6 +17,18 @@ sources:
             description: "USGS event ID (primary key)"
             tests: [unique, not_null]
 
+      - name: emsc_earthquakes
+        description: "Ham EMSC deprem verisi (FDSN GeoJSON) — ingestion servisi tarafından doldurulur"
+        config:
+          freshness:
+            warn_after: { count: 30, period: minute }
+            error_after: { count: 120, period: minute }
+          loaded_at_field: ingestion_time
+        columns:
+          - name: event_id
+            description: "EMSC event ID"
+            tests: [unique, not_null]
+
       - name: kandilli_earthquakes
         description: "Ham Kandilli deprem verisi — ingestion servisi tarafından doldurulur"
         config:
@@ -30,6 +42,32 @@ sources:
             tests: [unique, not_null]
 
 models:
+  - name: stg_emsc_earthquakes
+    description: >
+      EMSC ham verisini normalize eder (FDSN GeoJSON → ortak şema).
+      EMSC, USGS'den farklı bir ölçüm ağıdır — aynı depremi farklı
+      büyüklükte raporlayabilir. Reconciliation bu farkı yakalar.
+    columns:
+      - name: earthquake_id
+        description: "EMSC event ID"
+        tests: [unique, not_null]
+      - name: source
+        description: "Sabit: 'emsc'"
+        tests:
+          - accepted_values:
+              arguments: { values: ["emsc"] }
+      - name: event_time
+        description: "Deprem zamanı (UTC)"
+        tests: [not_null]
+      - name: mag
+        description: "Büyüklük"
+      - name: lon
+        description: "Boylam"
+      - name: lat
+        description: "Enlem"
+      - name: place
+        description: "Konum açıklaması"
+
   - name: stg_usgs_earthquakes
     description: >
       USGS ham verisini normalize eder. Aynı event_id için en son ingestion'ı alır

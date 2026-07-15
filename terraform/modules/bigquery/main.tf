@@ -73,6 +73,38 @@ resource "google_bigquery_table" "raw_usgs" {
 EOF
 }
 
+# --- EMSC raw tablosu (FDSN GeoJSON formatı) ---
+resource "google_bigquery_table" "raw_emsc" {
+  dataset_id = google_bigquery_dataset.raw.dataset_id
+  project    = var.project_id
+  table_id   = "emsc_earthquakes"
+
+  time_partitioning {
+    type                     = "DAY"
+    field                    = "event_time"
+  }
+
+  clustering = ["place"]
+
+  schema = <<EOF
+[
+    {"name": "ingestion_id", "type": "STRING", "mode": "REQUIRED"},
+    {"name": "ingestion_time", "type": "TIMESTAMP", "mode": "REQUIRED"},
+    {"name": "event_id", "type": "STRING", "mode": "REQUIRED"},
+    {"name": "event_time", "type": "TIMESTAMP", "mode": "REQUIRED"},
+    {"name": "updated", "type": "TIMESTAMP", "mode": "NULLABLE"},
+    {"name": "mag", "type": "FLOAT64", "mode": "NULLABLE"},
+    {"name": "mag_type", "type": "STRING", "mode": "NULLABLE"},
+    {"name": "place", "type": "STRING", "mode": "NULLABLE"},
+    {"name": "lon", "type": "FLOAT64", "mode": "REQUIRED"},
+    {"name": "lat", "type": "FLOAT64", "mode": "REQUIRED"},
+    {"name": "depth_km", "type": "FLOAT64", "mode": "REQUIRED"},
+    {"name": "source_url", "type": "STRING", "mode": "NULLABLE"},
+    {"name": "raw_json", "type": "JSON", "mode": "NULLABLE"}
+  ]
+EOF
+}
+
 # --- Kandilli raw tablosu ---
 resource "google_bigquery_table" "raw_kandilli" {
   dataset_id = google_bigquery_dataset.raw.dataset_id
@@ -114,6 +146,35 @@ EOF
 
 # --- Staging tabloları — dbt materialize edecek, ama şema tutarlılığı için şimdiden tanımlı ---
 # DİKKAT: Staging tabloları staging dataset'inde olmalı (raw'da değil).
+resource "google_bigquery_table" "_stg_emsc" {
+  dataset_id = google_bigquery_dataset.staging.dataset_id
+  project    = var.project_id
+  table_id   = "_stg_emsc"
+
+  time_partitioning {
+    type  = "DAY"
+    field = "event_time"
+  }
+
+  clustering = ["place"]
+
+  schema = jsonencode([
+    {"mode": "REQUIRED", "name": "ingestion_id", "type": "STRING"},
+    {"mode": "REQUIRED", "name": "ingestion_time", "type": "TIMESTAMP"},
+    {"mode": "REQUIRED", "name": "event_id", "type": "STRING"},
+    {"mode": "REQUIRED", "name": "event_time", "type": "TIMESTAMP"},
+    {"mode": "NULLABLE", "name": "updated", "type": "TIMESTAMP"},
+    {"mode": "NULLABLE", "name": "mag", "type": "FLOAT64"},
+    {"mode": "NULLABLE", "name": "mag_type", "type": "STRING"},
+    {"mode": "NULLABLE", "name": "place", "type": "STRING"},
+    {"mode": "REQUIRED", "name": "lon", "type": "FLOAT64"},
+    {"mode": "REQUIRED", "name": "lat", "type": "FLOAT64"},
+    {"mode": "REQUIRED", "name": "depth_km", "type": "FLOAT64"},
+    {"mode": "NULLABLE", "name": "source_url", "type": "STRING"},
+    {"mode": "NULLABLE", "name": "raw_json", "type": "JSON"}
+  ])
+}
+
 resource "google_bigquery_table" "_stg_usgs" {
   dataset_id = google_bigquery_dataset.staging.dataset_id
   project    = var.project_id

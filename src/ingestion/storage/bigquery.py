@@ -35,6 +35,23 @@ USGS_SCHEMA: List[bigquery.SchemaField] = [
     bigquery.SchemaField("raw_json", "JSON"),
 ]
 
+EMSC_SCHEMA: List[bigquery.SchemaField] = [
+    # EMSC, USGS ile neredeyse aynı GeoJSON formatını kullanır (FDSN standardı).
+    bigquery.SchemaField("ingestion_id", "STRING", mode="REQUIRED"),
+    bigquery.SchemaField("ingestion_time", "TIMESTAMP", mode="REQUIRED"),
+    bigquery.SchemaField("event_id", "STRING", mode="REQUIRED"),
+    bigquery.SchemaField("event_time", "TIMESTAMP"),
+    bigquery.SchemaField("updated", "TIMESTAMP"),
+    bigquery.SchemaField("mag", "FLOAT64"),
+    bigquery.SchemaField("mag_type", "STRING"),
+    bigquery.SchemaField("place", "STRING"),
+    bigquery.SchemaField("lon", "FLOAT64"),
+    bigquery.SchemaField("lat", "FLOAT64"),
+    bigquery.SchemaField("depth_km", "FLOAT64"),
+    bigquery.SchemaField("source_url", "STRING"),
+    bigquery.SchemaField("raw_json", "JSON"),
+]
+
 KANDILLI_SCHEMA: List[bigquery.SchemaField] = [
     bigquery.SchemaField("ingestion_id", "STRING", mode="REQUIRED"),
     bigquery.SchemaField("ingestion_time", "TIMESTAMP", mode="REQUIRED"),
@@ -131,6 +148,29 @@ def merge_to_raw(
             cdi = S.cdi,
             mmi = S.mmi,
             felt = S.felt,
+            lon = S.lon,
+            lat = S.lat,
+            depth_km = S.depth_km,
+            source_url = S.source_url
+        WHEN NOT MATCHED THEN
+          INSERT ROW
+        """
+    elif source == "emsc":
+        target = f"`{project}.{dataset}.emsc_earthquakes`"
+        staging = f"`{project}.{dataset}._stg_emsc`"
+        sql = f"""
+        MERGE {target} T
+        USING {staging} S
+        ON T.event_id = S.event_id
+        WHEN MATCHED AND S.updated > T.updated THEN
+          UPDATE SET
+            ingestion_id = S.ingestion_id,
+            ingestion_time = S.ingestion_time,
+            event_time = S.event_time,
+            updated = S.updated,
+            mag = S.mag,
+            mag_type = S.mag_type,
+            place = S.place,
             lon = S.lon,
             lat = S.lat,
             depth_km = S.depth_km,

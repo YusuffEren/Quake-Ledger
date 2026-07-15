@@ -8,10 +8,12 @@ from fastapi import FastAPI, HTTPException
 from google.cloud import bigquery
 
 from config import BQ_DATASET, RAW_BUCKET
+from fetchers.emsc import EMSCFetcher
 from fetchers.kandilli import KandilliFetcher
 from fetchers.usgs import USGSFetcher
 from models import EarthquakeEvent
 from storage.bigquery import (
+    EMSC_SCHEMA,
     KANDILLI_SCHEMA,
     USGS_SCHEMA,
     load_to_staging,
@@ -27,6 +29,7 @@ app = FastAPI(title="Quake-Ledger Ingestion")
 
 # Fetcher'lar stateful (Kandilli ETag tutar) — process ömrünce tek instance.
 usgs_fetcher = USGSFetcher()
+emsc_fetcher = EMSCFetcher()
 kandilli_fetcher = KandilliFetcher()
 
 # BQ client'ı — lazy init: modül import edildiğinde değil, ilk kullanımda oluşur.
@@ -50,6 +53,10 @@ async def health():
 async def ingest_usgs():
     return await do_ingest("usgs", usgs_fetcher)
 
+
+@app.post("/ingest/emsc")
+async def ingest_emsc():
+    return await do_ingest("emsc", emsc_fetcher)
 
 @app.post("/ingest/kandilli")
 async def ingest_kandilli():
@@ -130,6 +137,23 @@ def event_to_bq_row(
             "location_properties": _serialize_json(ev.location_properties),
             "raw_json": _serialize_json(ev.raw_json),
         }
+    elif source == "emsc":
+        # EMSC, USGS ile aynı FDSN GeoJSON formatını kullanır
+        return {
+            "ingestion_id": ingestion_id,
+            "ingestion_time": _serialize_dt(ingestion_time),
+            "event_id": ev.event_id,
+            "event_time": _serialize_dt(ev.event_time),
+            "updated": _serialize_dt(ev.updated),
+            "mag": ev.mag,
+            "mag_type": ev.mag_type,
+            "place": ev.place,
+            "lon": ev.lon,
+            "lat": ev.lat,
+            "depth_km": ev.depth_km,
+            "source_url": ev.source_url,
+            "raw_json": _serialize_json(ev.raw_json),
+        }
     else:
         raise ValueError(f"Unknown source: {source}")
 
@@ -172,7 +196,7 @@ async def do_ingest(source: str, fetcher):
 
     # 5. Load staging → BQ
     try:
-        schema = USGS_SCHEMA if source == "usgs" else KANDILLI_SCHEMA
+        schema = USGS_SCHEMA if source == "usgs" else EMSC_SCHEMA if source == "emsc" else KANDILLI_SCHEMA
         bq = get_bq_client()
         loaded = load_to_staging(bq, BQ_DATASET, source, staging_uri, schema)
         logger.info(f"Staging loaded: {loaded} rows")

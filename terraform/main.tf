@@ -37,6 +37,7 @@ module "scheduler" {
   cloud_run_service_name       = module.cloud_run.service_name
   ingestion_schedule_usgs      = var.ingestion_schedule_usgs
   ingestion_schedule_kandilli   = var.ingestion_schedule_kandilli
+  ingestion_schedule_emsc       = var.ingestion_schedule_emsc
 
   depends_on = [google_project_service.enabled_apis]
 }

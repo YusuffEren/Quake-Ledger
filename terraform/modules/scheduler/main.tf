@@ -67,3 +67,28 @@ resource "google_cloud_scheduler_job" "kandilli_ingestion" {
     max_backoff_duration = "300s"
   }
 }
+
+# --- EMSC ingestion job ---
+resource "google_cloud_scheduler_job" "emsc_ingestion" {
+  name     = "trigger-emsc-ingestion"
+  project  = var.project_id
+  region   = var.region
+  schedule = var.ingestion_schedule_emsc
+  time_zone = "UTC"
+
+  http_target {
+    http_method = "POST"
+    uri         = "${var.cloud_run_url}/ingest/emsc"
+
+    oidc_token {
+      service_account_email = google_service_account.scheduler_sa.email
+    }
+  }
+
+  retry_config {
+    retry_count          = 3
+    max_retry_duration   = "1200s"
+    min_backoff_duration = "5s"
+    max_backoff_duration = "300s"
+  }
+}

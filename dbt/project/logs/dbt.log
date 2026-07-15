@@ -13036,3 +13036,415 @@ SELECT * FROM unified
 [0m21:48:59.450061 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7bc98df65510>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7bc98df64c50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7bc98dfa3c50>]}
 [0m21:48:59.451119 [debug] [MainThread]: Flushing usage events
 [0m21:49:00.061337 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:07:25.287015 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9aee61fed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9aee6db890>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9aee92f5d0>]}
+
+
+============================== 22:07:25.292356 | 898da176-2953-45e6-8009-7503e93a68d3 ==============================
+[0m22:07:25.292356 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:07:25.293673 [debug] [MainThread]: running dbt with arguments {'empty': 'None', 'log_cache_events': 'False', 'quiet': 'False', 'profiles_dir': '/workspace/dbt/project', 'log_format': 'default', 'warn_error': 'None', 'target_path': 'None', 'printer_width': '80', 'partial_parse': 'True', 'indirect_selection': 'eager', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'static_parser': 'True', 'fail_fast': 'False', 'introspect': 'True', 'log_path': '/workspace/dbt/project/logs', 'version_check': 'True', 'use_colors': 'True', 'send_anonymous_usage_stats': 'True', 'invocation_command': 'dbt deps', 'no_print': 'None', 'debug': 'False', 'cache_selected_only': 'False', 'use_experimental_parser': 'False', 'write_json': 'True'}
+[0m22:07:25.397679 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '898da176-2953-45e6-8009-7503e93a68d3', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9aee6db3d0>]}
+[0m22:07:25.412290 [info ] [MainThread]: Warning: No packages were found in packages.yml
+[0m22:07:25.420983 [info ] [MainThread]: Warning: No packages were found in packages.yml
+[0m22:07:25.422739 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 0.19673935, "process_in_blocks": "0", "process_kernel_time": 0.282674, "process_mem_max_rss": "106668", "process_out_blocks": "2192", "process_user_time": 1.329764}
+[0m22:07:25.424008 [debug] [MainThread]: Command `dbt deps` succeeded at 22:07:25.423823 after 0.20 seconds
+[0m22:07:25.425303 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9aee5458d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9aee92f610>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7c9af2fe76d0>]}
+[0m22:07:25.426776 [debug] [MainThread]: Flushing usage events
+[0m22:07:26.101979 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:07:27.866064 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774db94d90d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774db94c7b10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774db94d8e10>]}
+
+
+============================== 22:07:27.869258 | 2c2e92da-77f5-48bf-a1bf-a9350110e6e0 ==============================
+[0m22:07:27.869258 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:07:27.870471 [debug] [MainThread]: running dbt with arguments {'log_cache_events': 'False', 'target_path': 'None', 'version_check': 'True', 'cache_selected_only': 'False', 'log_path': '/workspace/dbt/project/logs', 'quiet': 'False', 'write_json': 'True', 'printer_width': '80', 'fail_fast': 'False', 'no_print': 'None', 'partial_parse': 'False', 'profiles_dir': '/workspace/dbt/project', 'warn_error': 'None', 'use_experimental_parser': 'False', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True', 'indirect_selection': 'eager', 'invocation_command': 'dbt run --select stg_emsc_earthquakes --no-partial-parse', 'debug': 'False', 'empty': 'False', 'log_format': 'default', 'use_colors': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'introspect': 'True'}
+[0m22:07:28.751815 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d8a1d6cd0>]}
+[0m22:07:28.803317 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774dbc454610>]}
+[0m22:07:28.804756 [info ] [MainThread]: Registered adapter: bigquery=1.11.3
+[0m22:07:28.957567 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m22:07:28.961123 [debug] [MainThread]: Partial parsing not enabled
+[0m22:07:30.552884 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d881647d0>]}
+[0m22:07:30.679172 [debug] [MainThread]: Wrote artifact WritableManifest to /workspace/dbt/project/target/manifest.json
+[0m22:07:30.685266 [debug] [MainThread]: Wrote artifact SemanticManifest to /workspace/dbt/project/target/semantic_manifest.json
+[0m22:07:30.708355 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d89b97d50>]}
+[0m22:07:30.709752 [info ] [MainThread]: Found 8 models, 39 data tests, 3 sources, 554 macros
+[0m22:07:30.711311 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d8a9bfed0>]}
+[0m22:07:30.714514 [info ] [MainThread]: 
+[0m22:07:30.716430 [info ] [MainThread]: Concurrency: 4 threads (target='dev')
+[0m22:07:30.717724 [info ] [MainThread]: 
+[0m22:07:30.719016 [debug] [MainThread]: Acquiring new bigquery connection 'master'
+[0m22:07:30.720633 [debug] [ThreadPool]: Acquiring new bigquery connection 'list_deprem-502519'
+[0m22:07:30.722843 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:07:31.423761 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_deprem-502519, now list_deprem-502519_staging_dbt_test__audit)
+[0m22:07:31.424693 [debug] [ThreadPool]: Acquiring new bigquery connection 'list_deprem-502519_staging_marts'
+[0m22:07:31.425665 [debug] [ThreadPool]: Acquiring new bigquery connection 'list_deprem-502519_staging'
+[0m22:07:31.426301 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:07:31.427107 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:07:31.427913 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:07:32.080568 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d8a2cde90>]}
+[0m22:07:32.083257 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m22:07:32.134060 [debug] [Thread-5 (]: Began running node model.quake_ledger.stg_emsc_earthquakes
+[0m22:07:32.136821 [info ] [Thread-5 (]: 1 of 1 START sql view model staging.stg_emsc_earthquakes ....................... [RUN]
+[0m22:07:32.138661 [debug] [Thread-5 (]: Acquiring new bigquery connection 'model.quake_ledger.stg_emsc_earthquakes'
+[0m22:07:32.139623 [debug] [Thread-5 (]: Began compiling node model.quake_ledger.stg_emsc_earthquakes
+[0m22:07:32.148078 [debug] [Thread-5 (]: Writing injected SQL for node "model.quake_ledger.stg_emsc_earthquakes"
+[0m22:07:32.156802 [debug] [Thread-5 (]: Began executing node model.quake_ledger.stg_emsc_earthquakes
+[0m22:07:32.181651 [debug] [Thread-5 (]: Writing runtime sql for node "model.quake_ledger.stg_emsc_earthquakes"
+[0m22:07:32.190153 [debug] [Thread-5 (]: On model.quake_ledger.stg_emsc_earthquakes: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "quake_ledger", "target_name": "dev", "node_id": "model.quake_ledger.stg_emsc_earthquakes"} */
+
+
+  create or replace view `deprem-502519`.`staging`.`stg_emsc_earthquakes`
+  OPTIONS()
+  as -- stg_emsc_earthquakes
+-- EMSC ham verisini normalize eder, ortak şemaya dönüştürür.
+-- EMSC, USGS ile aynı FDSN GeoJSON formatını kullanır — şema neredeyse birebir.
+-- Kaynak: raw.emsc_earthquakes
+
+WITH source AS (
+    SELECT *
+    FROM `deprem-502519`.`raw`.`emsc_earthquakes`
+),
+
+dedup AS (
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY event_id
+            ORDER BY ingestion_time DESC, updated DESC NULLS LAST
+        ) AS rn
+    FROM source
+),
+
+normalized AS (
+    SELECT
+        event_id AS earthquake_id,
+        'emsc' AS source,
+        event_time,
+        mag,
+        depth_km,
+        lon,
+        lat,
+        place,
+        updated AS source_updated_at,
+        ingestion_time,
+        raw_json,
+
+        -- EMSC'e özgü alanlar
+        mag_type,
+        source_url
+
+    FROM dedup
+    WHERE rn = 1
+)
+
+SELECT * FROM normalized;
+
+
+[0m22:07:32.191331 [debug] [Thread-5 (]: Opening a new connection, currently in state init
+[0m22:07:32.998482 [debug] [Thread-5 (]: BigQuery adapter: https://console.cloud.google.com/bigquery?project=deprem-502519&j=bq:EU:48807644-328f-43e8-983c-793b303a7453&page=queryresults
+[0m22:07:33.365693 [debug] [Thread-5 (]: SQL status: OK in 0.365 seconds
+[0m22:07:33.417260 [debug] [Thread-5 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': '2c2e92da-77f5-48bf-a1bf-a9350110e6e0', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d8a04abd0>]}
+[0m22:07:33.418549 [info ] [Thread-5 (]: 1 of 1 OK created sql view model staging.stg_emsc_earthquakes .................. [[32mCREATE VIEW (0 processed)[0m in 1.28s]
+[0m22:07:33.419858 [debug] [Thread-5 (]: Finished running node model.quake_ledger.stg_emsc_earthquakes
+[0m22:07:33.422431 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m22:07:33.460877 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m22:07:33.462013 [debug] [MainThread]: Connection 'list_deprem-502519_staging_dbt_test__audit' was properly closed.
+[0m22:07:33.462814 [debug] [MainThread]: Connection 'list_deprem-502519_staging_marts' was properly closed.
+[0m22:07:33.463625 [debug] [MainThread]: Connection 'list_deprem-502519_staging' was properly closed.
+[0m22:07:33.464368 [debug] [MainThread]: Connection 'model.quake_ledger.stg_emsc_earthquakes' was properly closed.
+[0m22:07:33.465163 [info ] [MainThread]: 
+[0m22:07:33.466129 [info ] [MainThread]: Finished running 1 view model in 0 hours 0 minutes and 2.75 seconds (2.75s).
+[0m22:07:33.468127 [debug] [MainThread]: Command end result
+[0m22:07:33.527433 [debug] [MainThread]: Wrote artifact WritableManifest to /workspace/dbt/project/target/manifest.json
+[0m22:07:33.533406 [debug] [MainThread]: Wrote artifact SemanticManifest to /workspace/dbt/project/target/semantic_manifest.json
+[0m22:07:33.542338 [debug] [MainThread]: Wrote artifact RunExecutionResult to /workspace/dbt/project/target/run_results.json
+[0m22:07:33.543217 [info ] [MainThread]: 
+[0m22:07:33.544445 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m22:07:33.545942 [info ] [MainThread]: 
+[0m22:07:33.547257 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=1
+[0m22:07:33.548717 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 5.7451105, "process_in_blocks": "0", "process_kernel_time": 0.689773, "process_mem_max_rss": "254400", "process_out_blocks": "624", "process_user_time": 4.993627}
+[0m22:07:33.550263 [debug] [MainThread]: Command `dbt run` succeeded at 22:07:33.550104 after 5.75 seconds
+[0m22:07:33.551345 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774db961dc50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774d5bfd3fd0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x774db95ff050>]}
+[0m22:07:33.552391 [debug] [MainThread]: Flushing usage events
+[0m22:07:34.180170 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m22:07:36.011877 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454a6a18510>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454a6a07a90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454a6a07750>]}
+
+
+============================== 22:07:36.015045 | e2541d9f-e88f-4e25-a458-370b0010fae6 ==============================
+[0m22:07:36.015045 [info ] [MainThread]: Running with dbt=1.11.12
+[0m22:07:36.016095 [debug] [MainThread]: running dbt with arguments {'cache_selected_only': 'False', 'indirect_selection': 'eager', 'write_json': 'True', 'no_print': 'None', 'partial_parse': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'empty': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'log_cache_events': 'False', 'debug': 'False', 'static_parser': 'True', 'introspect': 'True', 'profiles_dir': '/workspace/dbt/project', 'fail_fast': 'False', 'printer_width': '80', 'invocation_command': 'dbt run --select marts --no-partial-parse', 'warn_error': 'None', 'quiet': 'False', 'log_format': 'default', 'send_anonymous_usage_stats': 'True', 'log_path': '/workspace/dbt/project/logs', 'version_check': 'True', 'target_path': 'None'}
+[0m22:07:37.008537 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x74547c816490>]}
+[0m22:07:37.062499 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454a992c810>]}
+[0m22:07:37.064145 [info ] [MainThread]: Registered adapter: bigquery=1.11.3
+[0m22:07:37.198078 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m22:07:37.201055 [debug] [MainThread]: Partial parsing not enabled
+[0m22:07:38.737721 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x745477620550>]}
+[0m22:07:38.855635 [debug] [MainThread]: Wrote artifact WritableManifest to /workspace/dbt/project/target/manifest.json
+[0m22:07:38.873610 [debug] [MainThread]: Wrote artifact SemanticManifest to /workspace/dbt/project/target/semantic_manifest.json
+[0m22:07:38.936747 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454771fbd10>]}
+[0m22:07:38.939824 [info ] [MainThread]: Found 8 models, 39 data tests, 3 sources, 554 macros
+[0m22:07:38.941282 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x745476f97f90>]}
+[0m22:07:38.944048 [info ] [MainThread]: 
+[0m22:07:38.945162 [info ] [MainThread]: Concurrency: 4 threads (target='dev')
+[0m22:07:38.946125 [info ] [MainThread]: 
+[0m22:07:38.947219 [debug] [MainThread]: Acquiring new bigquery connection 'master'
+[0m22:07:38.952231 [debug] [ThreadPool]: Acquiring new bigquery connection 'list_deprem-502519'
+[0m22:07:38.953634 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:07:39.734523 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_deprem-502519, now list_deprem-502519_staging_marts)
+[0m22:07:39.735253 [debug] [ThreadPool]: Acquiring new bigquery connection 'list_deprem-502519_staging_dbt_test__audit'
+[0m22:07:39.736014 [debug] [ThreadPool]: Acquiring new bigquery connection 'list_deprem-502519_staging'
+[0m22:07:39.736963 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m22:07:39.737953 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:07:39.738941 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m22:07:40.508065 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454756edf90>]}
+[0m22:07:40.509245 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m22:07:40.550562 [debug] [Thread-5 (]: Began running node model.quake_ledger.dm_earthquake_daily
+[0m22:07:40.551521 [debug] [Thread-6 (]: Began running node model.quake_ledger.fct_model_cost
+[0m22:07:40.552449 [info ] [Thread-5 (]: 1 of 3 START sql table model staging_marts.dm_earthquake_daily ................. [RUN]
+[0m22:07:40.553569 [info ] [Thread-6 (]: 2 of 3 START sql table model staging_marts.fct_model_cost ...................... [RUN]
+[0m22:07:40.555089 [debug] [Thread-5 (]: Re-using an available connection from the pool (formerly list_deprem-502519_staging_marts, now model.quake_ledger.dm_earthquake_daily)
+[0m22:07:40.556181 [debug] [Thread-6 (]: Re-using an available connection from the pool (formerly list_deprem-502519_staging_dbt_test__audit, now model.quake_ledger.fct_model_cost)
+[0m22:07:40.557232 [debug] [Thread-5 (]: Began compiling node model.quake_ledger.dm_earthquake_daily
+[0m22:07:40.558209 [debug] [Thread-6 (]: Began compiling node model.quake_ledger.fct_model_cost
+[0m22:07:40.566014 [debug] [Thread-5 (]: Writing injected SQL for node "model.quake_ledger.dm_earthquake_daily"
+[0m22:07:40.568945 [debug] [Thread-6 (]: Writing injected SQL for node "model.quake_ledger.fct_model_cost"
+[0m22:07:40.575183 [debug] [Thread-5 (]: Began executing node model.quake_ledger.dm_earthquake_daily
+[0m22:07:40.576259 [debug] [Thread-6 (]: Began executing node model.quake_ledger.fct_model_cost
+[0m22:07:40.613081 [debug] [Thread-6 (]: Opening a new connection, currently in state closed
+[0m22:07:40.616496 [debug] [Thread-5 (]: Opening a new connection, currently in state closed
+[0m22:07:41.348286 [debug] [Thread-5 (]: Writing runtime sql for node "model.quake_ledger.dm_earthquake_daily"
+[0m22:07:41.356928 [debug] [Thread-5 (]: On model.quake_ledger.dm_earthquake_daily: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "quake_ledger", "target_name": "dev", "node_id": "model.quake_ledger.dm_earthquake_daily"} */
+
+  
+    
+
+    create or replace table `deprem-502519`.`staging_marts`.`dm_earthquake_daily`
+      
+    partition by event_date
+    cluster by source
+
+    
+    OPTIONS()
+    as (
+      -- dm_earthquake_daily
+-- Günlük deprem özet istatistikleri.
+-- Partition: event_date
+-- Cluster: source
+
+
+
+WITH source_usgs AS (
+    SELECT
+        DATE(event_time) AS event_date,
+        'usgs' AS source,
+        mag AS magnitude,
+        earthquake_id AS event_id
+    FROM `deprem-502519`.`staging`.`stg_usgs_earthquakes`
+),
+
+source_emsc AS (
+    SELECT
+        DATE(event_time) AS event_date,
+        'emsc' AS source,
+        mag AS magnitude,
+        earthquake_id AS event_id
+    FROM `deprem-502519`.`staging`.`stg_emsc_earthquakes`
+),
+
+source_kandilli AS (
+    SELECT
+        DATE(event_time) AS event_date,
+        'kandilli' AS source,
+        mag AS magnitude,
+        earthquake_id AS event_id
+    FROM `deprem-502519`.`staging`.`stg_kandilli_earthquakes`
+),
+
+all_sources AS (
+    SELECT * FROM source_usgs
+    UNION ALL
+    SELECT * FROM source_emsc
+    UNION ALL
+    SELECT * FROM source_kandilli
+),
+
+aggregated AS (
+    SELECT
+        event_date,
+        source,
+        COUNT(DISTINCT event_id) AS earthquake_count,
+        ROUND(AVG(magnitude), 2) AS avg_magnitude,
+        ROUND(MAX(magnitude), 2) AS max_magnitude,
+        ROUND(MIN(magnitude), 2) AS min_magnitude,
+        CURRENT_TIMESTAMP() AS processed_at
+    FROM all_sources
+    WHERE magnitude IS NOT NULL
+    GROUP BY event_date, source
+)
+
+SELECT * FROM aggregated
+    );
+  
+[0m22:07:41.375033 [debug] [Thread-6 (]: Writing runtime sql for node "model.quake_ledger.fct_model_cost"
+[0m22:07:41.384296 [debug] [Thread-6 (]: On model.quake_ledger.fct_model_cost: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "quake_ledger", "target_name": "dev", "node_id": "model.quake_ledger.fct_model_cost"} */
+
+  
+    
+
+    create or replace table `deprem-502519`.`staging_marts`.`fct_model_cost`
+      
+    partition by run_date
+    cluster by model_name
+
+    
+    OPTIONS()
+    as (
+      -- fct_model_cost
+-- Her dbt model çalıştırmasının maliyet metriği.
+-- BigQuery INFORMATION_SCHEMA'dan okunur.
+-- Gölge maliyet hesabı: $5/TiB on-demand sorgu fiyatı (US/EU multi-region)
+
+
+
+WITH job_data AS (
+    SELECT
+        job_id,
+        job_type,
+        statement_type,
+        query,
+        -- Sorgunun hangi tabloya yazdığını bul (dbt model)
+        REGEXP_EXTRACT(query, r'`[^`]+`\.`[^`]+`\.`([^`]+)`') AS model_name,
+        destination_table,
+        total_bytes_processed AS bytes_processed,
+        TIMESTAMP_DIFF(end_time, start_time, SECOND) AS execution_time_seconds,
+        start_time,
+        end_time,
+        error_result,
+        cache_hit
+    FROM `region-eu`.INFORMATION_SCHEMA.JOBS_BY_PROJECT
+    WHERE 1=1
+      -- Sadece dbt ile ilgili job'lar
+      AND (query LIKE '%staging.%' OR query LIKE '%marts.%')
+      AND query NOT LIKE '%INFORMATION_SCHEMA%'
+      AND query NOT LIKE '%staging_dbt_test__audit%'
+      -- Son 30 gün
+      AND creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+      -- Başarılı job'lar
+      AND error_result IS NULL
+      -- Sadece SELECT ve INSERT (dbt build)
+      AND statement_type IN ('SELECT', 'INSERT', 'CREATE_TABLE_AS_SELECT', 'CREATE_VIEW')
+),
+
+aggregated AS (
+    SELECT
+        job_id,
+        COALESCE(model_name, 'unknown') AS model_name,
+        job_type,
+        bytes_processed,
+        -- Gölge maliyet: BigQuery on-demand $5/TiB = $5/1,099,511,627,776 bytes
+        ROUND(bytes_processed * 5.0 / 1099511627776, 10) AS shadow_cost_usd,
+        execution_time_seconds,
+        DATE(start_time) AS run_date,
+        start_time,
+        end_time
+    FROM job_data
+    WHERE bytes_processed > 0
+)
+
+SELECT
+    job_id,
+    model_name,
+    job_type,
+    bytes_processed,
+    shadow_cost_usd,
+    -- 1000 satır başına maliyet (tahmini: 1 satır ~1KB)
+    ROUND(shadow_cost_usd / NULLIF(bytes_processed / 1000.0, 0) * 1000, 8) AS query_cost_per_1000_rows,
+    execution_time_seconds,
+    run_date,
+    start_time,
+    end_time,
+    CURRENT_TIMESTAMP() AS processed_at
+FROM aggregated
+    );
+  
+[0m22:07:41.824553 [debug] [Thread-6 (]: BigQuery adapter: https://console.cloud.google.com/bigquery?project=deprem-502519&j=bq:EU:776b0bf9-15c4-4d2a-acc9-a29ba8fc7ce2&page=queryresults
+[0m22:07:41.973034 [debug] [Thread-5 (]: BigQuery adapter: https://console.cloud.google.com/bigquery?project=deprem-502519&j=bq:EU:39fb57ed-eaad-4d3f-83de-3d8c6cbaf213&page=queryresults
+[0m22:07:43.328560 [debug] [Thread-5 (]: SQL status: OK in 1.354 seconds
+[0m22:07:43.574591 [debug] [Thread-5 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x74547749ce90>]}
+[0m22:07:43.576158 [info ] [Thread-5 (]: 1 of 3 OK created sql table model staging_marts.dm_earthquake_daily ............ [[32mCREATE TABLE (4.0 rows, 2.9 KiB processed)[0m in 3.02s]
+[0m22:07:43.577296 [debug] [Thread-5 (]: Finished running node model.quake_ledger.dm_earthquake_daily
+[0m22:07:43.685816 [debug] [Thread-6 (]: SQL status: OK in 1.860 seconds
+[0m22:07:43.866964 [debug] [Thread-6 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x745477468e50>]}
+[0m22:07:43.869220 [info ] [Thread-6 (]: 2 of 3 OK created sql table model staging_marts.fct_model_cost ................. [[32mCREATE TABLE (8.0 rows, 187.8 KiB processed)[0m in 3.31s]
+[0m22:07:43.870665 [debug] [Thread-6 (]: Finished running node model.quake_ledger.fct_model_cost
+[0m22:07:43.873381 [debug] [Thread-8 (]: Began running node model.quake_ledger.dm_daily_pipeline_cost
+[0m22:07:43.874572 [info ] [Thread-8 (]: 3 of 3 START sql table model staging_marts.dm_daily_pipeline_cost .............. [RUN]
+[0m22:07:43.875797 [debug] [Thread-8 (]: Acquiring new bigquery connection 'model.quake_ledger.dm_daily_pipeline_cost'
+[0m22:07:43.876759 [debug] [Thread-8 (]: Began compiling node model.quake_ledger.dm_daily_pipeline_cost
+[0m22:07:43.880728 [debug] [Thread-8 (]: Writing injected SQL for node "model.quake_ledger.dm_daily_pipeline_cost"
+[0m22:07:43.888579 [debug] [Thread-8 (]: Began executing node model.quake_ledger.dm_daily_pipeline_cost
+[0m22:07:43.892398 [debug] [Thread-8 (]: Opening a new connection, currently in state init
+[0m22:07:44.433411 [debug] [Thread-8 (]: Writing runtime sql for node "model.quake_ledger.dm_daily_pipeline_cost"
+[0m22:07:44.448639 [debug] [Thread-8 (]: On model.quake_ledger.dm_daily_pipeline_cost: /* {"app": "dbt", "dbt_version": "1.11.12", "profile_name": "quake_ledger", "target_name": "dev", "node_id": "model.quake_ledger.dm_daily_pipeline_cost"} */
+
+  
+    
+
+    create or replace table `deprem-502519`.`staging_marts`.`dm_daily_pipeline_cost`
+      
+    partition by run_date
+    
+
+    
+    OPTIONS()
+    as (
+      -- dm_daily_pipeline_cost
+-- Günlük pipeline maliyet özeti.
+-- Optimizasyon öncesi/sonrası karşılaştırması.
+
+
+
+WITH cost_data AS (
+    SELECT * FROM `deprem-502519`.`staging_marts`.`fct_model_cost`
+),
+
+daily AS (
+    SELECT
+        run_date,
+        COUNT(DISTINCT job_id) AS total_jobs,
+        COUNT(DISTINCT model_name) AS model_count,
+        SUM(bytes_processed) AS total_bytes_processed,
+        SUM(shadow_cost_usd) AS total_shadow_cost_usd,
+        ROUND(AVG(shadow_cost_usd), 10) AS avg_cost_per_model,
+        ROUND(SUM(shadow_cost_usd) / NULLIF(COUNT(DISTINCT model_name), 0), 10) AS cost_per_model_avg,
+        CURRENT_TIMESTAMP() AS processed_at
+    FROM cost_data
+    GROUP BY run_date
+)
+
+SELECT * FROM daily
+    );
+  
+[0m22:07:44.827822 [debug] [Thread-8 (]: BigQuery adapter: https://console.cloud.google.com/bigquery?project=deprem-502519&j=bq:EU:f4a5a86a-cd42-4eae-bcb8-20d66be2d526&page=queryresults
+[0m22:07:46.075311 [debug] [Thread-8 (]: SQL status: OK in 1.244 seconds
+[0m22:07:46.272914 [debug] [Thread-8 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'e2541d9f-e88f-4e25-a458-370b0010fae6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454774693d0>]}
+[0m22:07:46.276439 [info ] [Thread-8 (]: 3 of 3 OK created sql table model staging_marts.dm_daily_pipeline_cost ......... [[32mCREATE TABLE (1.0 rows, 580.0 Bytes processed)[0m in 2.40s]
+[0m22:07:46.279002 [debug] [Thread-8 (]: Finished running node model.quake_ledger.dm_daily_pipeline_cost
+[0m22:07:46.283498 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m22:07:46.336316 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m22:07:46.337766 [debug] [MainThread]: Connection 'model.quake_ledger.dm_earthquake_daily' was properly closed.
+[0m22:07:46.339083 [debug] [MainThread]: Connection 'model.quake_ledger.fct_model_cost' was properly closed.
+[0m22:07:46.340306 [debug] [MainThread]: Connection 'list_deprem-502519_staging' was properly closed.
+[0m22:07:46.341980 [debug] [MainThread]: Connection 'model.quake_ledger.dm_daily_pipeline_cost' was properly closed.
+[0m22:07:46.343236 [info ] [MainThread]: 
+[0m22:07:46.344722 [info ] [MainThread]: Finished running 3 table models in 0 hours 0 minutes and 7.40 seconds (7.40s).
+[0m22:07:46.346942 [debug] [MainThread]: Command end result
+[0m22:07:46.416516 [debug] [MainThread]: Wrote artifact WritableManifest to /workspace/dbt/project/target/manifest.json
+[0m22:07:46.423647 [debug] [MainThread]: Wrote artifact SemanticManifest to /workspace/dbt/project/target/semantic_manifest.json
+[0m22:07:46.433565 [debug] [MainThread]: Wrote artifact RunExecutionResult to /workspace/dbt/project/target/run_results.json
+[0m22:07:46.434592 [info ] [MainThread]: 
+[0m22:07:46.435492 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m22:07:46.436433 [info ] [MainThread]: 
+[0m22:07:46.437417 [info ] [MainThread]: Done. PASS=3 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=3
+[0m22:07:46.438503 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 10.471813, "process_in_blocks": "0", "process_kernel_time": 0.706438, "process_mem_max_rss": "255752", "process_out_blocks": "0", "process_user_time": 5.197367}
+[0m22:07:46.439326 [debug] [MainThread]: Command `dbt run` succeeded at 22:07:46.439237 after 10.47 seconds
+[0m22:07:46.440279 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454a6b5dd50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454a6b65390>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7454ab34cc50>]}
+[0m22:07:46.441474 [debug] [MainThread]: Flushing usage events
+[0m22:07:47.046977 [debug] [MainThread]: An error was encountered while trying to flush usage events

@@ -27,3 +27,8 @@ variable "ingestion_schedule_kandilli" {
   type        = string
   description = "Kandilli cron schedule."
 }
+
+variable "ingestion_schedule_emsc" {
+  type        = string
+  description = "EMSC cron schedule."
+}

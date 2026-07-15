@@ -14,20 +14,30 @@ WITH source_usgs AS (
     FROM `deprem-502519`.`staging`.`stg_usgs_earthquakes`
 ),
 
--- Kandilli source (şu an veri yok, veri geldiğinde aktif edilecek)
--- source_kandilli AS (
---     SELECT
---         DATE(event_time) AS event_date,
---         'kandilli' AS source,
---         mag AS magnitude,
---         earthquake_id AS event_id
---     FROM `deprem-502519`.`staging`.`stg_kandilli_earthquakes`
--- ),
+source_emsc AS (
+    SELECT
+        DATE(event_time) AS event_date,
+        'emsc' AS source,
+        mag AS magnitude,
+        earthquake_id AS event_id
+    FROM `deprem-502519`.`staging`.`stg_emsc_earthquakes`
+),
+
+source_kandilli AS (
+    SELECT
+        DATE(event_time) AS event_date,
+        'kandilli' AS source,
+        mag AS magnitude,
+        earthquake_id AS event_id
+    FROM `deprem-502519`.`staging`.`stg_kandilli_earthquakes`
+),
 
 all_sources AS (
     SELECT * FROM source_usgs
-    -- UNION ALL
-    -- SELECT * FROM source_kandilli
+    UNION ALL
+    SELECT * FROM source_emsc
+    UNION ALL
+    SELECT * FROM source_kandilli
 ),
 
 aggregated AS (
