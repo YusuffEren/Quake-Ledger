@@ -12,6 +12,13 @@ resource "google_project_iam_member" "ingestion_object_creator" {
   member  = "serviceAccount:${google_service_account.ingestion_sa.email}"
 }
 
+# BigQuery, GCS'deki staging JSONL dosyasını okumak için objectViewer gerekir.
+resource "google_project_iam_member" "ingestion_object_viewer" {
+  project = var.project_id
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.ingestion_sa.email}"
+}
+
 # BigQuery job çalıştırma yetkisi — proje seviyesinde zorunlu (jobUser, sorgu çalıştırmanın önkoşulu).
 resource "google_project_iam_member" "ingestion_bq_job_user" {
   project = var.project_id
@@ -35,9 +42,8 @@ resource "google_cloud_run_service" "ingestion" {
   autogenerate_revision_name = true
 
   template {
-    service_account_name = google_service_account.ingestion_sa.email
-
     spec {
+      service_account_name = google_service_account.ingestion_sa.email
       container_concurrency = 1
       timeout_seconds      = 300
 

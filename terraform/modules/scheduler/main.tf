@@ -14,12 +14,8 @@ resource "google_cloud_run_service_iam_member" "invoker" {
   member   = "serviceAccount:${google_service_account.scheduler_sa.email}"
 }
 
-# Scheduler job çalıştırma yetkisi.
-resource "google_project_iam_member" "scheduler_role" {
-  project = var.project_id
-  role    = "roles/cloudscheduler.scheduler"
-  member  = "serviceAccount:${google_service_account.scheduler_sa.email}"
-}
+# Scheduler SA'nın Cloud Run invoke için OIDC token üretebilmesi gerekmez — 
+# Cloud Scheduler otomatik olarak OIDC token oluşturur. Sadece run.invoker yeterli.
 
 # --- USGS ingestion job ---
 resource "google_cloud_scheduler_job" "usgs_ingestion" {

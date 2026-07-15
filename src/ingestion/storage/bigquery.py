@@ -171,11 +171,17 @@ def merge_to_raw(
 
     query_job = client.query(sql)
     result = query_job.result()  # MERGE tamamlanana kadar bekler.
-    affected = (
-        query_job.dml_stats.updated_rows
-        + query_job.dml_stats.inserted_rows
-        + query_job.dml_stats.deleted_rows
-    ) if query_job.dml_stats else 0
+    try:
+        affected = (
+            query_job.dml_stats.updated_row_count
+            + query_job.dml_stats.inserted_row_count
+            + query_job.dml_stats.deleted_row_count
+        )
+    except (AttributeError, TypeError):
+        # Farklı BQ client sürümlerinde dml_stats attr isimleri değişebilir
+        affected = 0
+        if query_job.num_dml_affected_rows is not None:
+            affected = query_job.num_dml_affected_rows
     logger.info(f"MERGE for {source} affected {affected} rows")
     return affected
 

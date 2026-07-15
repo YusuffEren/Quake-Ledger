@@ -10,13 +10,12 @@ terraform {
   }
 
   # State GCS'te tutulur — takım içi paylaşım ve lock için.
-  # DİKKAT: "quake-ledger-tfstate" bucket'ı Terraform tarafından yönetilmez;
+  # DİKKAT: Bu bucket Terraform tarafından yönetilmez;
   # ilk `terraform init` öncesinde manuel oluşturulmalı (versioning açık):
-  #   gcloud storage buckets create gs://quake-ledger-tfstate \
-  #     --project=<PROJECT_ID> --location=EU --uniform-bucket-level-access
-  #   gcloud storage buckets update gs://quake-ledger-tfstate --versioning
+  #   gcloud storage buckets create gs://deprem-502519-tfstate \
+  #     --project=deprem-502519 --location=EU --uniform-bucket-level-access
   backend "gcs" {
-    bucket = "quake-ledger-tfstate"
+    bucket = "deprem-502519-tfstate"
     prefix = "terraform/state"
   }
 }
