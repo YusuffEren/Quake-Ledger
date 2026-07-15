@@ -1,0 +1,108 @@
+{
+  "status": true,
+  "timestamp": "2024-06-27 19:00:00",
+  "provider": "kandilli",
+  "count": 4,
+  "result": [
+    {
+      "earthquake_id": "202406280001",
+      "date_time": "2024-06-27 18:45:00",
+      "created_at": "2024-06-27 18:55:00",
+      "mag": 4.2,
+      "depth": 10.5,
+      "geojson": { "type": "Point", "coordinates": [38.12, 38.21, 10.5] },
+      "title": "MALATYA",
+      "location_tz": "Europe/Istanbul",
+      "provider": "kandilli",
+      "epi_center_name": "Doğanşehir",
+      "epi_center_population": 45000,
+      "closest_city_name": "Malatya",
+      "closest_city_distance_km": 12.4,
+      "location_properties": {
+        "province": "Malatya",
+        "district": "Doğanşehir",
+        "population_affected": 45000
+      },
+      "raw_json": {
+        "source": "KOERI",
+        "network": "dd",
+        "magnitude_type": "ML"
+      }
+    },
+    {
+      "earthquake_id": "202406280002",
+      "date_time": "2024-06-27 18:30:00",
+      "created_at": "2024-06-27 18:40:00",
+      "mag": 2.8,
+      "depth": 7.2,
+      "geojson": { "type": "Point", "coordinates": [39.05, 38.68, 7.2] },
+      "title": "ELAZIĞ",
+      "location_tz": "Europe/Istanbul",
+      "provider": "kandilli",
+      "epi_center_name": "Sivrice",
+      "epi_center_population": 12000,
+      "closest_city_name": "Elazığ",
+      "closest_city_distance_km": 5.1,
+      "location_properties": {
+        "province": "Elazığ",
+        "district": "Sivrice",
+        "population_affected": 12000
+      },
+      "raw_json": {
+        "source": "KOERI",
+        "network": "dd",
+        "magnitude_type": "ML"
+      }
+    },
+    {
+      "earthquake_id": "202406280003",
+      "date_time": "2024-06-27 18:15:00",
+      "created_at": "2024-06-27 18:25:00",
+      "mag": 5.1,
+      "depth": 15.0,
+      "geojson": { "type": "Point", "coordinates": [43.85, 38.55, 15.0] },
+      "title": "VAN",
+      "location_tz": "Europe/Istanbul",
+      "provider": "kandilli",
+      "epi_center_name": "Erciş",
+      "epi_center_population": 95000,
+      "closest_city_name": "Van",
+      "closest_city_distance_km": 30.2,
+      "location_properties": {
+        "province": "Van",
+        "district": "Erciş",
+        "population_affected": 95000
+      },
+      "raw_json": {
+        "source": "KOERI",
+        "network": "dd",
+        "magnitude_type": "MW"
+      }
+    },
+    {
+      "earthquake_id": "202406280004",
+      "date_time": "2024-06-27 18:00:00",
+      "created_at": "2024-06-27 18:10:00",
+      "mag": 1.5,
+      "depth": 5.8,
+      "geojson": { "type": "Point", "coordinates": [27.15, 38.35, 5.8] },
+      "title": "IZMIR",
+      "location_tz": "Europe/Istanbul",
+      "provider": "kandilli",
+      "epi_center_name": "Gaziemir",
+      "epi_center_population": 130000,
+      "closest_city_name": "İzmir",
+      "closest_city_distance_km": 8.0,
+      "location_properties": {
+        "province": "İzmir",
+        "district": "Gaziemir",
+        "population_affected": 130000
+      },
+      "raw_json": {
+        "source": "KOERI",
+        "network": "dd",
+        "magnitude_type": "ML"
+      }
+    }
+  ]
+}

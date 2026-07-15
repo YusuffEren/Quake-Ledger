@@ -1,0 +1,156 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1719504000000,
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2024-06-27T00:00:00Z",
+    "title": "USGS Earthquakes",
+    "api": "1.0.0",
+    "count": 4
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 4.2,
+        "place": "12 km SSE of Malatya, Turkey",
+        "time": 1719503100000,
+        "updated": 1719503700000,
+        "tz": null,
+        "url": "/earthquakes/eventpage/us7000abcd1",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000abcd1&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": 3.1,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 180,
+        "net": "us",
+        "code": "7000abcd1",
+        "ids": ",us7000abcd1,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,",
+        "nst": 28,
+        "dmin": 0.42,
+        "rms": 0.78,
+        "gap": 95,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 4.2 - 12 km SSE of Malatya, Turkey"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [38.21, 38.12, 10.5]
+      },
+      "id": "us7000abcd1"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 2.8,
+        "place": "5 km W of Elazig, Turkey",
+        "time": 1719502200000,
+        "updated": 1719502800000,
+        "tz": null,
+        "url": "/earthquakes/eventpage/us7000abcd2",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000abcd2&format=geojson",
+        "felt": 2,
+        "cdi": 2.0,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 80,
+        "net": "us",
+        "code": "7000abcd2",
+        "ids": ",us7000abcd2,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,",
+        "nst": 15,
+        "dmin": 0.18,
+        "rms": 0.55,
+        "gap": 120,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 2.8 - 5 km W of Elazig, Turkey"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [39.05, 38.68, 7.2]
+      },
+      "id": "us7000abcd2"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 5.1,
+        "place": "30 km NE of Van, Turkey",
+        "time": 1719501300000,
+        "updated": 1719501900000,
+        "tz": null,
+        "url": "/earthquakes/eventpage/us7000abcd3",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000abcd3&format=geojson",
+        "felt": 45,
+        "cdi": 4.2,
+        "mmi": 4.5,
+        "alert": "yellow",
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 320,
+        "net": "us",
+        "code": "7000abcd3",
+        "ids": ",us7000abcd3,",
+        "sources": ",us,",
+        "types": ",origin,phase-data,shakemap,",
+        "nst": 52,
+        "dmin": 0.65,
+        "rms": 0.92,
+        "gap": 78,
+        "magType": "mw",
+        "type": "earthquake",
+        "title": "M 5.1 - 30 km NE of Van, Turkey"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [43.85, 38.55, 15.0]
+      },
+      "id": "us7000abcd3"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 1.5,
+        "place": "8 km S of Izmir, Turkey",
+        "time": 1719500400000,
+        "updated": 1719501000000,
+        "tz": null,
+        "url": "/earthquakes/eventpage/us7000abcd4",
+        "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000abcd4&format=geojson",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "automatic",
+        "tsunami": 0,
+        "sig": 25,
+        "net": "us",
+        "code": "7000abcd4",
+        "ids": ",us7000abcd4,",
+        "sources": ",us,",
+        "types": ",origin,",
+        "nst": 8,
+        "dmin": 0.09,
+        "rms": 0.31,
+        "gap": 180,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "M 1.5 - 8 km S of Izmir, Turkey"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [27.15, 38.35, 5.8]
+      },
+      "id": "us7000abcd4"
+    }
+  ]
+}

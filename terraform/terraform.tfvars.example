@@ -1,0 +1,8 @@
+# Örnek tfvars — gerçek değerleri kendi tfvars dosyanıza kopyalayın.
+# cloud_run_image: Artifact Registry'de build edilen ingestion image URL'i.
+project_id = "your-gcp-project-id"
+region     = "europe-west1"
+bucket_name = "quake-ledger-raw"
+ingestion_schedule_usgs    = "*/15 * * * *"
+ingestion_schedule_kandilli = "*/15 * * * *"
+cloud_run_image = "europe-west1-docker.pkg.dev/your-gcp-project-id/quake/ingestion:latest"
