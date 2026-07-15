@@ -15,7 +15,8 @@ models:
         description: "Eşleşme durumu"
         tests:
           - accepted_values:
-              values: ["matched", "usgs_only", "kandilli_only"]
+              arguments:
+                values: ["matched", "usgs_only", "kandilli_only"]
       - name: usgs_id
         description: "USGS event ID (eşleşme varsa)"
       - name: kandilli_id

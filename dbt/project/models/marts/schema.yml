@@ -11,7 +11,8 @@ models:
         description: "Veri kaynağı (usgs, kandilli)"
         tests:
           - accepted_values:
-              values: ["usgs", "kandilli", "unified"]
+              arguments:
+                values: ["usgs", "kandilli", "unified"]
       - name: earthquake_count
         description: "Deprem sayısı"
       - name: avg_magnitude

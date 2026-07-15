@@ -21,20 +21,15 @@ models:
   quake_ledger:
     staging:
       +materialized: view
-      +dataset: staging
-      +schema: staging
-      tags: ["staging"]
+      +tags: ["staging"]
     reconciliation:
       +materialized: table
-      +dataset: staging
-      +schema: staging
-      tags: ["reconciliation"]
+      +tags: ["reconciliation"]
     marts:
       +materialized: table
-      +dataset: marts
       +schema: marts
-      tags: ["marts"]
+      +tags: ["marts"]
 
 tests:
   +store_failures: true
-  +severity: error  # Veri kontratı ihlali = build fail
+  +severity: error

@@ -4,14 +4,14 @@ sources:
   - name: raw
     database: "{{ env_var('DBT_PROJECT_ID', 'deprem-502519') }}"
     dataset: raw
-    schema: raw
     tables:
       - name: usgs_earthquakes
         description: "Ham USGS deprem verisi — ingestion servisi tarafından doldurulur"
-        freshness:
-          warn_after: { count: 30, period: minute }
-          error_after: { count: 120, period: minute }
-        loaded_at_field: ingestion_time
+        config:
+          freshness:
+            warn_after: { count: 30, period: minute }
+            error_after: { count: 120, period: minute }
+          loaded_at_field: ingestion_time
         columns:
           - name: event_id
             description: "USGS event ID (primary key)"
@@ -19,10 +19,11 @@ sources:
 
       - name: kandilli_earthquakes
         description: "Ham Kandilli deprem verisi — ingestion servisi tarafından doldurulur"
-        freshness:
-          warn_after: { count: 30, period: minute }
-          error_after: { count: 120, period: minute }
-        loaded_at_field: ingestion_time
+        config:
+          freshness:
+            warn_after: { count: 30, period: minute }
+            error_after: { count: 120, period: minute }
+          loaded_at_field: ingestion_time
         columns:
           - name: earthquake_id
             description: "Kandilli event ID (primary key)"
@@ -41,7 +42,8 @@ models:
       - name: source
         description: "Sabit: 'usgs'"
         tests:
-          - accepted_values: { values: ["usgs"] }
+          - accepted_values:
+              arguments: { values: ["usgs"] }
       - name: event_time
         description: "Deprem zamanı (UTC)"
         tests: [not_null]
@@ -72,7 +74,8 @@ models:
       - name: source
         description: "Sabit: 'kandilli'"
         tests:
-          - accepted_values: { values: ["kandilli"] }
+          - accepted_values:
+              arguments: { values: ["kandilli"] }
       - name: event_time
         description: "Deprem zamanı (UTC)"
         tests: [not_null]
