@@ -11,3 +11,8 @@ build/
 # GCP credentials — asla commit edilmemeli
 gcp-key.json
 .gcloud/
+
+# dbt build artifacts
+dbt/project/target/
+dbt/project/logs/
+dbt/project/.user.yml
