@@ -2,6 +2,7 @@
 -- Her dbt model çalıştırmasının maliyet metriği.
 -- BigQuery INFORMATION_SCHEMA'dan okunur.
 -- Gölge maliyet hesabı: $5/TiB on-demand sorgu fiyatı (US/EU multi-region)
+-- Region: {{ var('bq_region', 'region-eu') }} — dbt_project.yml veya env'den değiştirilebilir.
 
 {{ config(
     partition_by={
@@ -11,6 +12,8 @@
     },
     cluster_by=["model_name"]
 ) }}
+
+{% set bq_region = var('bq_region', 'region-eu') %}
 
 WITH job_data AS (
     SELECT
@@ -27,7 +30,7 @@ WITH job_data AS (
         end_time,
         error_result,
         cache_hit
-    FROM `region-eu`.INFORMATION_SCHEMA.JOBS_BY_PROJECT
+    FROM `{{ bq_region }}`.INFORMATION_SCHEMA.JOBS_BY_PROJECT
     WHERE 1=1
       -- Sadece dbt ile ilgili job'lar
       AND (query LIKE '%staging.%' OR query LIKE '%marts.%')
@@ -63,8 +66,6 @@ SELECT
     job_type,
     bytes_processed,
     shadow_cost_usd,
-    -- 1000 satır başına maliyet (tahmini: 1 satır ~1KB)
-    ROUND(shadow_cost_usd / NULLIF(bytes_processed / 1000.0, 0) * 1000, 8) AS query_cost_per_1000_rows,
     execution_time_seconds,
     run_date,
     start_time,

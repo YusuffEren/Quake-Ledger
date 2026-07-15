@@ -1,5 +1,6 @@
+{{ config(severity='warn') }}
 -- Çapraz kaynak anlaşmazlık testi:
--- USGS ile Kandilli arasında büyüklük farkı > 2.0 ise uyarı
+-- USGS ile Kandilli arasında büyüklük farkı > 2.0 ise uyarı (build fail değil)
 -- Bu, kaynaklardan birinin anormal okuma yaptığını gösterebilir
 
 WITH disagreement AS (

@@ -156,6 +156,23 @@ Pipeline'ın **gölge maliyeti** BigQuery INFORMATION_SCHEMA üzerinden takip ed
 
 ---
 
+---
+
+## Known Limitations (Bilinçli Tradeoff'lar)
+
+Bu proje portföy amaçlıdır ve aşağıdaki sınırlamaların farkında olarak tasarlanmıştır:
+
+| Sınırlama | Açıklama | Gelecek İyileştirme |
+|---|---|---|
+| **Reconciliation CROSS JOIN** | Haversine eşleştirmesi tüm kaynak çiftlerini `CROSS JOIN` eder (O(n×m)). Küçük hacimde sorunsuz, büyürken patlar. | Time-bucket + geohash ön filtresi ile bloklama |
+| **Kandilli rate-limit** | ETag ve 15sn bekleme in-process state'te tutulur. Cold start/çoklu instance'da best-effort. | Paylaşılan state (GCS/Firestore) veya Cloud Scheduler zaten 15dk ara ile tetikler |
+| **Staging concurrency** | Aynı kaynağın iki ingestion'ı `_stg_` tablosuna çakışarak yazabilir. `maxInstances=1` + `concurrency=1` ile risk düşük. | _stg_ tablosunu ingestion_id ile uniqueness |
+| **Kandilli proxy bağımlılığı** | Kandilli verisi `api.orhanaydogdu.com.tr` topluluk proxy'si üzerinden alınır. Kesinti durumunda veri kaybı olabilir. | KOERI HTML scraping ile fallback fetcher |
+| **Tek region/instance** | Cloud Run europe-west1'de, BigQuery EU'da. Disaster recovery yok. | Multi-region, Terraform modülü ile genişletme |
+| **Gözlemlenebilirlik** | Structured logging + BigQuery sorguları seviyesinde. Ayrı bir observability platformu yok. | OpenLineage + Elementary + Cloud Monitoring alert |
+
+---
+
 ## Geliştirme Komutları
 
 ```bash

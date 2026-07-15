@@ -8,6 +8,15 @@ from google.cloud import storage
 
 logger = logging.getLogger(__name__)
 
+# Lazy singleton — `main.py`'deki `get_bq_client()` deseniyle aynı.
+_storage_client: Optional[storage.Client] = None
+
+def get_storage_client() -> storage.Client:
+    global _storage_client
+    if _storage_client is None:
+        _storage_client = storage.Client()
+    return _storage_client
+
 
 def _content_hash(data: dict) -> str:
     """JSON içeriğinin MD5 hash'inin ilk 8 karakteri — dedup için dosya adında kullanılır."""
@@ -30,7 +39,7 @@ def write_raw_json(
     if data is None:
         raise ValueError("data must not be None")
 
-    bucket = storage.Client().bucket(bucket_name)
+    bucket = get_storage_client().bucket(bucket_name)
     ts = ingestion_time.strftime("%Y%m%dT%H%M%S")
     chash = content_hash or _content_hash(data)
     path = (
@@ -59,7 +68,7 @@ def write_staging_jsonl(
     if not rows:
         raise ValueError("rows must not be empty")
 
-    bucket = storage.Client().bucket(bucket_name)
+    bucket = get_storage_client().bucket(bucket_name)
     path = f"raw/{source}/_staging/{ingestion_id}.jsonl"
     blob = bucket.blob(path)
     payload = "\n".join(

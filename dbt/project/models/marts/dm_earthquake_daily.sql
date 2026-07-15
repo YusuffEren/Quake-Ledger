@@ -1,7 +1,7 @@
 -- dm_earthquake_daily
 -- Günlük deprem özet istatistikleri.
--- Partition: event_date
--- Cluster: source
+-- Partition: event_date, Cluster: source
+-- Incremental: her çalıştırmada sadece son 3 günü yeniden hesaplar.
 
 {{ config(
     partition_by={
@@ -9,8 +9,14 @@
         "data_type": "date",
         "granularity": "day"
     },
-    cluster_by=["source"]
+    cluster_by=["source"],
+    materialized='incremental',
+    incremental_strategy='insert_overwrite'
 ) }}
+
+{% if is_incremental() %}
+  {% set max_date = "DATE(MAX(event_time)) FROM " ~ ref('stg_usgs_earthquakes') %}
+{% endif %}
 
 WITH source_usgs AS (
     SELECT
@@ -19,6 +25,9 @@ WITH source_usgs AS (
         mag AS magnitude,
         earthquake_id AS event_id
     FROM {{ ref('stg_usgs_earthquakes') }}
+    {% if is_incremental() %}
+    WHERE DATE(event_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
+    {% endif %}
 ),
 
 source_emsc AS (

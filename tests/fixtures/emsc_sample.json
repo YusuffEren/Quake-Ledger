@@ -1,0 +1,34 @@
+{
+  "type": "FeatureCollection",
+  "metadata": { "count": 2 },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "source_id": "emsc_test_001",
+        "mag": 3.5,
+        "magtype": "ml",
+        "time": "2026-07-15T18:45:00.0Z",
+        "lat": 38.12,
+        "lon": 38.21,
+        "depth": 10.5,
+        "flynn_region": "MALATYA, TURKEY",
+        "evtype": "ke"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source_id": "emsc_test_002",
+        "mag": 2.1,
+        "magtype": "ml",
+        "time": "2026-07-15T14:30:00.0Z",
+        "lat": 39.05,
+        "lon": 38.68,
+        "depth": 7.2,
+        "flynn_region": "ELAZIG, TURKEY",
+        "evtype": "ke"
+      }
+    }
+  ]
+}
