@@ -1,0 +1,92 @@
+version: 2
+
+sources:
+  - name: raw
+    database: "{{ env_var('DBT_PROJECT_ID', 'deprem-502519') }}"
+    dataset: raw
+    schema: raw
+    tables:
+      - name: usgs_earthquakes
+        description: "Ham USGS deprem verisi — ingestion servisi tarafından doldurulur"
+        freshness:
+          warn_after: { count: 30, period: minute }
+          error_after: { count: 120, period: minute }
+        loaded_at_field: ingestion_time
+        columns:
+          - name: event_id
+            description: "USGS event ID (primary key)"
+            tests: [unique, not_null]
+
+      - name: kandilli_earthquakes
+        description: "Ham Kandilli deprem verisi — ingestion servisi tarafından doldurulur"
+        freshness:
+          warn_after: { count: 30, period: minute }
+          error_after: { count: 120, period: minute }
+        loaded_at_field: ingestion_time
+        columns:
+          - name: earthquake_id
+            description: "Kandilli event ID (primary key)"
+            tests: [unique, not_null]
+
+models:
+  - name: stg_usgs_earthquakes
+    description: >
+      USGS ham verisini normalize eder. Aynı event_id için en son ingestion'ı alır
+      (idempotent). Ortak şemaya dönüştürür: alan adları standartlaştırılır,
+      gereksiz kolonlar filtrelenir. Downstream reconciliation modeli bu veriyi kullanır.
+    columns:
+      - name: earthquake_id
+        description: "USGS event ID — raw.event_id'den kopyalanır"
+        tests: [unique, not_null]
+      - name: source
+        description: "Sabit: 'usgs'"
+        tests:
+          - accepted_values: { values: ["usgs"] }
+      - name: event_time
+        description: "Deprem zamanı (UTC)"
+        tests: [not_null]
+      - name: mag
+        description: "Büyüklük"
+      - name: depth_km
+        description: "Derinlik (km)"
+      - name: lon
+        description: "Boylam"
+        tests: [not_null]
+      - name: lat
+        description: "Enlem"
+        tests: [not_null]
+      - name: place
+        description: "Konum açıklaması"
+      - name: source_updated_at
+        description: "Kaynakta son güncellenme zamanı"
+
+  - name: stg_kandilli_earthquakes
+    description: >
+      Kandilli ham verisini normalize eder. Aynı earthquake_id için en son
+      ingestion'ı alır. Alan adlarını USGS ile ortak şemaya dönüştürür
+      (title → place, date_time → event_time).
+    columns:
+      - name: earthquake_id
+        description: "Kandilli earthquake ID — raw.earthquake_id'den"
+        tests: [unique, not_null]
+      - name: source
+        description: "Sabit: 'kandilli'"
+        tests:
+          - accepted_values: { values: ["kandilli"] }
+      - name: event_time
+        description: "Deprem zamanı (UTC)"
+        tests: [not_null]
+      - name: mag
+        description: "Büyüklük"
+      - name: depth_km
+        description: "Derinlik (km)"
+      - name: lon
+        description: "Boylam"
+        tests: [not_null]
+      - name: lat
+        description: "Enlem"
+        tests: [not_null]
+      - name: place
+        description: "Konum açıklaması"
+      - name: provider
+        description: "Veri sağlayıcı adı"

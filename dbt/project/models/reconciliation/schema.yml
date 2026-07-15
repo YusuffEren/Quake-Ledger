@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: int_earthquake_matches
+    description: >
+      USGS ve Kandilli arasında aynı deprem eşleştirmeleri.
+      Eşikler: zaman ≤ 120sn, mesafe ≤ 50km (Haversine), büyüklük farkı ≤ 1.0.
+      Her kaydın match durumu belirtilir: matched, usgs_only, kandilli_only.
+      Bir USGS event'i en fazla bir Kandilli ile eşleşir (en yakın mesafe öncelikli).
+    columns:
+      - name: match_id
+        description: "Eşleşme benzersiz ID'si ({usgs_id}_{kandilli_id} veya {id}_none)"
+        tests: [unique, not_null]
+      - name: match_status
+        description: "Eşleşme durumu"
+        tests:
+          - accepted_values:
+              values: ["matched", "usgs_only", "kandilli_only"]
+      - name: usgs_id
+        description: "USGS event ID (eşleşme varsa)"
+      - name: kandilli_id
+        description: "Kandilli earthquake ID (eşleşme varsa)"
+      - name: usgs_time
+        description: "USGS'ye göre deprem zamanı (UTC)"
+      - name: kandilli_time
+        description: "Kandilli'ye göre deprem zamanı (UTC)"
+      - name: usgs_mag
+        description: "USGS büyüklük"
+      - name: kandilli_mag
+        description: "Kandilli büyüklük"
+      - name: usgs_lon
+        description: "USGS boylam"
+      - name: usgs_lat
+        description: "USGS enlem"
+      - name: kandilli_lon
+        description: "Kandilli boylam"
+      - name: kandilli_lat
+        description: "Kandilli enlem"
+      - name: usgs_place
+        description: "USGS konum açıklaması"
+      - name: kandilli_place
+        description: "Kandilli konum açıklaması"
+      - name: time_diff_seconds
+        description: "İki kaynak arasındaki zaman farkı (saniye)"
+      - name: distance_km
+        description: "Coğrafi mesafe — Haversine formülü (km)"
+      - name: mag_diff
+        description: "Büyüklük farkı (mutlak)"
+
+  - name: fct_unified_earthquakes
+    description: >
+      Birleştirilmiş deprem olayları. Eşleşen kayıtlar tek satırda birleştirilir,
+      canonical source seçimi yapılır. Anlaşmazlık metrikleri (disagreement)
+      hesaplanır: mag_disagreement, time_diff_seconds, distance_km.
+      Canonical kural: USGS baz alınır, Türkiye içi olaylarda (35-43N, 25-46E)
+      Kandilli tercih edilir.
+    columns:
+      - name: unified_id
+        description: "Benzersiz unified olay ID'si"
+        tests: [unique, not_null]
+      - name: match_status
+        description: "Eşleşme durumu (matched, usgs_only, kandilli_only)"
+      - name: usgs_id
+        description: "USGS event ID (varsa)"
+      - name: kandilli_id
+        description: "Kandilli earthquake ID (varsa)"
+      - name: event_time
+        description: "Canonical deprem zamanı (USGS öncelikli)"
+        tests: [not_null]
+      - name: canonical_lat
+        description: "Canonical enlem"
+      - name: canonical_lon
+        description: "Canonical boylam"
+      - name: canonical_mag
+        description: "Canonical büyüklük — USGS baz alınır, Türkiye'de Kandilli"
+      - name: usgs_mag
+        description: "USGS büyüklük (orijinal)"
+      - name: kandilli_mag
+        description: "Kandilli büyüklük (orijinal)"
+      - name: usgs_place
+        description: "USGS konum açıklaması"
+      - name: kandilli_place
+        description: "Kandilli konum açıklaması"
+      - name: mag_disagreement
+        description: "|usgs_mag - kandilli_mag| — kaynak anlaşmazlık metriği"
+      - name: time_diff_seconds
+        description: "Zaman farkı (saniye)"
+      - name: distance_km
+        description: "Coğrafi mesafe (km)"
+      - name: sources_available
+        description: "Hangi kaynaklarda veri var ('both', 'usgs', 'kandilli')"
+      - name: processed_at
+        description: "dbt işlem zamanı"

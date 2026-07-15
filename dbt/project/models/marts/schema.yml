@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dm_earthquake_daily
+    description: "Günlük deprem özeti — kaynak bazında istatistikler"
+    columns:
+      - name: event_date
+        description: "Olay tarihi (UTC)"
+        tests: [not_null]
+      - name: source
+        description: "Veri kaynağı (usgs, kandilli)"
+        tests:
+          - accepted_values:
+              values: ["usgs", "kandilli", "unified"]
+      - name: earthquake_count
+        description: "Deprem sayısı"
+      - name: avg_magnitude
+        description: "Ortalama büyüklük"
+      - name: max_magnitude
+        description: "Maksimum büyüklük"
+      - name: min_magnitude
+        description: "Minimum büyüklük"
