@@ -1,4 +1,4 @@
-.PHONY: lint test docker-build terraform-plan terraform-apply terraform-init dbt-build dbt-test lint-sql
+.PHONY: lint test docker-build terraform-plan terraform-apply terraform-init dbt-build dbt-test lint-sql cost-regression cost-baseline
 
 lint:
 	ruff check src/ tests/
@@ -19,6 +19,18 @@ dbt-build: dbt-deps
 
 dbt-test: dbt-build
 	cd dbt/project && dbt test
+
+cost-baseline:
+	python scripts/cost_regression_test.py \
+		--project deprem-502519 \
+		--dataset staging \
+		--dry-run-only
+
+cost-regression:
+	python scripts/cost_regression_test.py \
+		--project deprem-502519 \
+		--dataset staging \
+		--threshold-percent 20
 
 docker-build:
 	docker build -t quake-ingestion src/ingestion/

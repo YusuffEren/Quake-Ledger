@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: fct_model_cost
+    description: >
+      Her dbt model çalıştırmasının maliyet metriği.
+      BigQuery INFORMATION_SCHEMA.JOBS_BY_PROJECT'ten okunur.
+      Gölge maliyet = bytes_processed * $5/TiB (on-demand BigQuery fiyatı).
+    columns:
+      - name: job_id
+        description: "BigQuery job ID"
+        tests: [unique, not_null]
+      - name: model_name
+        description: "dbt model adı (tablo/view ismi)"
+      - name: job_type
+        description: "Job tipi (query, load, etc.)"
+      - name: bytes_processed
+        description: "Taranan byte sayısı"
+      - name: shadow_cost_usd
+        description: "Gölge maliyet ($) — bytes_processed * $5/TiB"
+      - name: query_cost_per_1000_rows
+        description: "1000 satır başına maliyet"
+      - name: execution_time_seconds
+        description: "Çalışma süresi (saniye)"
+      - name: run_date
+        description: "Çalıştırma tarihi"
+        tests: [not_null]
+
+  - name: dm_daily_pipeline_cost
+    description: >
+      Günlük pipeline maliyet özeti — tüm modellerin toplam gölge maliyeti.
+      Optimizasyon öncesi/sonrası karşılaştırması için kullanılır.
+    columns:
+      - name: run_date
+        description: "Tarih"
+        tests: [not_null]
+      - name: total_bytes_processed
+        description: "Toplam taranan byte"
+      - name: total_shadow_cost_usd
+        description: "Toplam gölge maliyet ($)"
+      - name: model_count
+        description: "Çalıştırılan model sayısı"
+      - name: avg_cost_per_model
+        description: "Model başına ortalama maliyet ($)"

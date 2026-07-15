@@ -88,6 +88,25 @@ jobs:
           DBT_PROJECT_ID: ${{ secrets.DBT_PROJECT_ID }}
           DBT_KEYFILE: ${{ secrets.DBT_KEYFILE }}
 
+  cost-regression-test:
+    runs-on: ubuntu-latest
+    needs: dbt-build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Önceki commit ile karşılaştırma için
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install google-cloud-bigquery
+      - run: python scripts/cost_regression_test.py \
+          --project ${{ secrets.DBT_PROJECT_ID }} \
+          --dataset staging \
+          --threshold-percent 20 \
+          --model-dir dbt/project/models
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.DBT_KEYFILE }}
+
   docker-build:
     runs-on: ubuntu-latest
     steps:

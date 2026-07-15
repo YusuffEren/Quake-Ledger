@@ -12,31 +12,29 @@
     cluster_by=["source"]
 ) }}
 
-WITH source_unified AS (
+WITH source_usgs AS (
     SELECT
         DATE(event_time) AS event_date,
-        'unified' AS source,
-        canonical_mag AS magnitude,
-        unified_id AS event_id
-    FROM {{ ref('fct_unified_earthquakes') }}
-
-    UNION ALL
-
-    SELECT
-        DATE(event_time) AS event_date,
-        source,
+        'usgs' AS source,
         mag AS magnitude,
         earthquake_id AS event_id
     FROM {{ ref('stg_usgs_earthquakes') }}
+),
 
-    UNION ALL
+-- Kandilli source (şu an veri yok, veri geldiğinde aktif edilecek)
+-- source_kandilli AS (
+--     SELECT
+--         DATE(event_time) AS event_date,
+--         'kandilli' AS source,
+--         mag AS magnitude,
+--         earthquake_id AS event_id
+--     FROM {{ ref('stg_kandilli_earthquakes') }}
+-- ),
 
-    SELECT
-        DATE(event_time) AS event_date,
-        source,
-        mag AS magnitude,
-        earthquake_id AS event_id
-    FROM {{ ref('stg_kandilli_earthquakes') }}
+all_sources AS (
+    SELECT * FROM source_usgs
+    -- UNION ALL
+    -- SELECT * FROM source_kandilli
 ),
 
 aggregated AS (
@@ -48,10 +46,9 @@ aggregated AS (
         ROUND(MAX(magnitude), 2) AS max_magnitude,
         ROUND(MIN(magnitude), 2) AS min_magnitude,
         CURRENT_TIMESTAMP() AS processed_at
-    FROM source_unified
+    FROM all_sources
     WHERE magnitude IS NOT NULL
     GROUP BY event_date, source
 )
 
 SELECT * FROM aggregated
-ORDER BY event_date DESC, source
