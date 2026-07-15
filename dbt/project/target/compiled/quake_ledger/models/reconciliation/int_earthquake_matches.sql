@@ -113,25 +113,26 @@ best_matches AS (
 ),
 
 -- Eşleşmeyen USGS event'leri
+-- NOT: BigQuery'de NULL tipi INT64'tür — UNION ALL'da tip uyuşmazlığını önlemek için CAST kullanılır.
 usgs_only AS (
     SELECT
         CONCAT(earthquake_id, '_none') AS match_id,
         'usgs_only' AS match_status,
         earthquake_id AS usgs_id,
-        NULL AS kandilli_id,
+        CAST(NULL AS STRING) AS kandilli_id,
         event_time AS usgs_time,
-        NULL AS kandilli_time,
+        CAST(NULL AS TIMESTAMP) AS kandilli_time,
         mag AS usgs_mag,
-        NULL AS kandilli_mag,
+        CAST(NULL AS FLOAT64) AS kandilli_mag,
         lon AS usgs_lon,
         lat AS usgs_lat,
-        NULL AS kandilli_lon,
-        NULL AS kandilli_lat,
+        CAST(NULL AS FLOAT64) AS kandilli_lon,
+        CAST(NULL AS FLOAT64) AS kandilli_lat,
         place AS usgs_place,
-        NULL AS kandilli_place,
-        NULL AS time_diff_seconds,
-        NULL AS distance_km,
-        NULL AS mag_diff
+        CAST(NULL AS STRING) AS kandilli_place,
+        CAST(NULL AS INT64) AS time_diff_seconds,
+        CAST(NULL AS FLOAT64) AS distance_km,
+        CAST(NULL AS FLOAT64) AS mag_diff
     FROM usgs
     WHERE earthquake_id NOT IN (
         SELECT usgs_id FROM best_matches WHERE usgs_id IS NOT NULL
@@ -143,21 +144,21 @@ kandilli_only AS (
     SELECT
         CONCAT('none_', earthquake_id) AS match_id,
         'kandilli_only' AS match_status,
-        NULL AS usgs_id,
+        CAST(NULL AS STRING) AS usgs_id,
         earthquake_id AS kandilli_id,
-        NULL AS usgs_time,
+        CAST(NULL AS TIMESTAMP) AS usgs_time,
         event_time AS kandilli_time,
-        NULL AS usgs_mag,
+        CAST(NULL AS FLOAT64) AS usgs_mag,
         mag AS kandilli_mag,
-        NULL AS usgs_lon,
-        NULL AS usgs_lat,
+        CAST(NULL AS FLOAT64) AS usgs_lon,
+        CAST(NULL AS FLOAT64) AS usgs_lat,
         lon AS kandilli_lon,
         lat AS kandilli_lat,
-        NULL AS usgs_place,
+        CAST(NULL AS STRING) AS usgs_place,
         place AS kandilli_place,
-        NULL AS time_diff_seconds,
-        NULL AS distance_km,
-        NULL AS mag_diff
+        CAST(NULL AS INT64) AS time_diff_seconds,
+        CAST(NULL AS FLOAT64) AS distance_km,
+        CAST(NULL AS FLOAT64) AS mag_diff
     FROM kandilli
     WHERE earthquake_id NOT IN (
         SELECT kandilli_id FROM best_matches WHERE kandilli_id IS NOT NULL
