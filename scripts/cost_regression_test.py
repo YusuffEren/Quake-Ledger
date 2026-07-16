@@ -32,45 +32,79 @@ def parse_args():
     parser.add_argument("--project", required=True, help="GCP proje ID")
     parser.add_argument("--dataset", default="marts", help="BQ dataset")
     parser.add_argument("--baseline-file", default="cost_baseline.json", help="Baseline dosyası")
-    parser.add_argument("--threshold-percent", type=float, default=20.0, help="İzin verilen artış %")
+    parser.add_argument("--threshold-percent", type=float, default=20.0, help="İzin verilen artış %%")
     parser.add_argument("--model-dir", default="dbt/project/models", help="dbt model dizini")
-    parser.add_argument("--dry-run-only", action="store_true", help="Sadece dry-run yap, karşılaştırma yapma")
+    parser.add_argument("--dry-run-only", action="store_true",
+                        help="Karşılaştırma yap ama baseline dosyasını güncelleme (CI modu)")
+    parser.add_argument("--base-ref", default="HEAD~1",
+                        help="Karşılaştırma için git base ref (CI: origin/main, local: HEAD~1)")
     return parser.parse_args()
 
 
-def find_changed_models(model_dir: str, baseline: Dict) -> List[str]:
+def get_all_models_from_dir(model_dir: str) -> List[str]:
+    """model_dir altındaki tüm .sql dosyalarından model adlarını döndür.
+
+    Boş baseline + değişen model yoksa fallback olarak kullanılır;
+    aksi halde hiç model test edilmez ve baseline hiç oluşmazdı.
+    """
+    model_path = Path(model_dir)
+    if not model_path.exists():
+        return []
+    return [p.stem for p in model_path.rglob("*.sql") if p.stem != "schema"]
+
+
+def find_changed_models(model_dir: str, baseline: Dict, base_ref: str = "HEAD~1") -> List[str]:
     """Son commit'te değişen SQL model dosyalarını bul."""
     models = []
     model_path = Path(model_dir)
-    
+
     # Git diff ile değişen dosyaları bul
     import subprocess
     result = subprocess.run(
-        ["git", "diff", "--name-only", "HEAD~1", "--", "*.sql"],
+        ["git", "diff", "--name-only", base_ref, "--", "*.sql"],
         capture_output=True, text=True, cwd=model_path.parent.parent.parent
     )
-    
+
+    # Geçersiz base_ref gibi durumlarda git sessizce hata döndürebilir;
+    # returncode kontrolü olmadan bu hata yutulurdu.
+    if result.returncode != 0:
+        error_msg = result.stderr.strip() or f"Git diff başarısız (returncode: {result.returncode})"
+        print(f"  HATA: {error_msg}", file=sys.stderr)
+        raise RuntimeError(f"Git diff başarısız: {error_msg}")
+
     for line in result.stdout.strip().split("\n"):
         line = line.strip()
-        if line and line.endswith(".sql") and "models" in line:
+        # Path.parts ile kontrol: "models" segment olarak yer almalı,
+        # yoksa "my_models/foo.sql" gibi yanlış eşleşmeler olurdu.
+        if line and line.endswith(".sql") and "models" in Path(line).parts:
             # Model adını çıkar
             model_name = Path(line).stem
             if model_name not in ["schema"]:
                 models.append(model_name)
-    
-    return models or list(baseline.keys())  # Hiç değişiklik yoksa tümünü test et
+
+    if models:
+        return models
+    if baseline:
+        return list(baseline.keys())
+    # Boş baseline + değişen model yoksa: dizindeki tüm modelleri test et,
+    # böylece ilk çalıştırmada baseline oluşturulabilsin.
+    return get_all_models_from_dir(model_dir)
 
 
-def dry_run_query(client: bigquery.Client, sql: str) -> int:
-    """Bir SQL sorgusunun bytes_processed değerini dry-run ile al."""
+def dry_run_query(client: bigquery.Client, sql: str) -> Optional[int]:
+    """Bir SQL sorgusunun bytes_processed değerini dry-run ile al.
+
+    Hata durumunda 0 değil None döner; çağıran taraf None'ı başarısız sayar.
+    0 döndürseydik hata, "0 byte = bedava sorgu" gibi yanlış yorumlanabilirdi.
+    """
     job_config = bigquery.QueryJobConfig(dry_run=True, use_query_cache=False)
-    
+
     try:
         query_job = client.query(sql, job_config=job_config)
         return query_job.total_bytes_processed or 0
     except Exception as e:
         print(f"  ⚠️  Dry-run hatası: {e}", file=sys.stderr)
-        return 0
+        return None
 
 
 def load_baseline(baseline_path: str) -> Dict:
@@ -106,10 +140,19 @@ def get_model_sql(project: str, dataset: str, model_name: str) -> Optional[str]:
 
 def run_cost_regression_test(args) -> Tuple[bool, Dict]:
     """Ana test fonksiyonu. (geçti_mi, detaylar) döner."""
-    client = bigquery.Client(project=args.project)
     baseline = load_baseline(args.baseline_file)
-    models = find_changed_models(args.model_dir, baseline)
-    
+    if not baseline:
+        print("\n⚠️  UYARI: Baseline dosyası boş veya bulunamadı!")
+        if args.dry_run_only:
+            print("❌ HATA: dry-run modunda boş baseline ile regresyon testi yapılamaz.")
+            print("   Baseline'ı oluşturmak için lokalde şu komutu çalıştırın:")
+            print(f"   python {__file__} --project <PROJECT> --dataset {args.dataset}")
+            return False, {}
+        else:
+            print("   İlk çalıştırma olarak kabul ediliyor, tüm modeller 'yeni' sayılacak.")
+            print("   Baseline bu çalıştırma sonunda oluşturulacak.\n")
+    models = find_changed_models(args.model_dir, baseline, args.base_ref)
+
     print(f"\n{'='*60}")
     print(f"📊 Maliyet Regresyon Testi")
     print(f"{'='*60}")
@@ -118,7 +161,10 @@ def run_cost_regression_test(args) -> Tuple[bool, Dict]:
     print(f"  Threshold: %{args.threshold_percent}")
     print(f"  Modeller: {', '.join(models) if models else '(tümü)'}")
     print()
-    
+
+    # Client'ı burada oluştururuz: üstteki ucuz önkoşul kontrolleri
+    # (baseline, değişen modeller) fail-fast edebilsin diye.
+    client = bigquery.Client(project=args.project)
     results = {}
     all_passed = True
     
@@ -130,6 +176,11 @@ def run_cost_regression_test(args) -> Tuple[bool, Dict]:
         
         print(f"  🔍 {model_name}: dry-run yapılıyor...", end=" ")
         bytes_now = dry_run_query(client, sql)
+        if bytes_now is None:
+            # dry-run başarısız oldu: 0 yerine None döndüğü için burada yakalıyoruz.
+            print("HATA")
+            all_passed = False
+            continue
         cost_now = bytes_now * 5.0 / 1099511627776  # $5/TiB
         
         print(f"{bytes_now:,} bytes (${cost_now:.8f})")

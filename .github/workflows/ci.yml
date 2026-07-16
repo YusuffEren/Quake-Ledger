@@ -103,7 +103,7 @@ jobs:
     needs: dbt-build
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 2 }
+        with: { fetch-depth: 0 }
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
@@ -111,11 +111,20 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install google-cloud-bigquery
       # Baseline dosyası repoda commit'li — CI sadece karşılaştırma yapar
+      - name: Determine base ref for diff
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "BASE_REF=origin/${{ github.base_ref }}" >> $GITHUB_ENV
+          else
+            echo "BASE_REF=HEAD~1" >> $GITHUB_ENV
+          fi
       - run: python scripts/cost_regression_test.py \
           --project ${{ env.DBT_PROJECT_ID }} \
           --dataset staging \
           --baseline-file cost_baseline.json \
-          --threshold-percent 20
+          --threshold-percent 20 \
+          --dry-run-only \
+          --base-ref ${{ env.BASE_REF }}
 
   docker-build:
     runs-on: ubuntu-latest
