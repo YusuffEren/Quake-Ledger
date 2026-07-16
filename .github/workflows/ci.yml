@@ -70,7 +70,7 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install dbt-bigquery
       - run: dbt deps --project-dir dbt/project
-      - run: dbt build --project-dir dbt/project --target ci
+      - run: dbt build --project-dir dbt/project --profiles-dir dbt/project --target ci
         env:
           DBT_KEYFILE: ${{ steps.auth.outputs.credentials_file_path }}
 
@@ -87,7 +87,7 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install dbt-bigquery
       - run: dbt deps --project-dir dbt/project
-      - run: dbt test --project-dir dbt/project --target ci
+      - run: dbt test --project-dir dbt/project --profiles-dir dbt/project --target ci
         env:
           DBT_KEYFILE: ${{ steps.auth.outputs.credentials_file_path }}
 
