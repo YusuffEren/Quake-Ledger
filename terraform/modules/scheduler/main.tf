@@ -19,10 +19,10 @@ resource "google_cloud_run_service_iam_member" "invoker" {
 
 # --- USGS ingestion job ---
 resource "google_cloud_scheduler_job" "usgs_ingestion" {
-  name     = "trigger-usgs-ingestion"
-  project  = var.project_id
-  region   = var.region
-  schedule = var.ingestion_schedule_usgs
+  name      = "trigger-usgs-ingestion"
+  project   = var.project_id
+  region    = var.region
+  schedule  = var.ingestion_schedule_usgs
   time_zone = "UTC"
 
   http_target {
@@ -45,10 +45,10 @@ resource "google_cloud_scheduler_job" "usgs_ingestion" {
 
 # --- Kandilli ingestion job ---
 resource "google_cloud_scheduler_job" "kandilli_ingestion" {
-  name     = "trigger-kandilli-ingestion"
-  project  = var.project_id
-  region   = var.region
-  schedule = var.ingestion_schedule_kandilli
+  name      = "trigger-kandilli-ingestion"
+  project   = var.project_id
+  region    = var.region
+  schedule  = var.ingestion_schedule_kandilli
   time_zone = "UTC"
 
   http_target {
@@ -70,10 +70,10 @@ resource "google_cloud_scheduler_job" "kandilli_ingestion" {
 
 # --- EMSC ingestion job ---
 resource "google_cloud_scheduler_job" "emsc_ingestion" {
-  name     = "trigger-emsc-ingestion"
-  project  = var.project_id
-  region   = var.region
-  schedule = var.ingestion_schedule_emsc
+  name      = "trigger-emsc-ingestion"
+  project   = var.project_id
+  region    = var.region
+  schedule  = var.ingestion_schedule_emsc
   time_zone = "UTC"
 
   http_target {

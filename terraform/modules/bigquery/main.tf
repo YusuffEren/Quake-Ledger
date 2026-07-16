@@ -28,12 +28,12 @@ resource "google_bigquery_dataset" "marts" {
 # --- USGS raw tablosu ---
 resource "google_bigquery_table" "raw_usgs" {
   dataset_id = google_bigquery_dataset.raw.dataset_id
-  project   = var.project_id
-  table_id  = "usgs_earthquakes"
+  project    = var.project_id
+  table_id   = "usgs_earthquakes"
 
   time_partitioning {
-    type                     = "DAY"
-    field                    = "event_time"
+    type  = "DAY"
+    field = "event_time"
     # Not: require_partition_filter Hafta 3'te eklenecek — MERGE sorguları partition filter gerektirmez.
   }
 
@@ -80,8 +80,8 @@ resource "google_bigquery_table" "raw_emsc" {
   table_id   = "emsc_earthquakes"
 
   time_partitioning {
-    type                     = "DAY"
-    field                    = "event_time"
+    type  = "DAY"
+    field = "event_time"
   }
 
   clustering = ["place"]
@@ -112,8 +112,8 @@ resource "google_bigquery_table" "raw_kandilli" {
   table_id   = "kandilli_earthquakes"
 
   time_partitioning {
-    type                     = "DAY"
-    field                    = "date_time"
+    type  = "DAY"
+    field = "date_time"
     # require_partition_filter = true  # Hafta 3 maliyet optimizasyonunda aktif edilecek
   }
 
@@ -159,19 +159,19 @@ resource "google_bigquery_table" "_stg_emsc" {
   clustering = ["place"]
 
   schema = jsonencode([
-    {"mode": "REQUIRED", "name": "ingestion_id", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "ingestion_time", "type": "TIMESTAMP"},
-    {"mode": "REQUIRED", "name": "event_id", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "event_time", "type": "TIMESTAMP"},
-    {"mode": "NULLABLE", "name": "updated", "type": "TIMESTAMP"},
-    {"mode": "NULLABLE", "name": "mag", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "mag_type", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "place", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "lon", "type": "FLOAT64"},
-    {"mode": "REQUIRED", "name": "lat", "type": "FLOAT64"},
-    {"mode": "REQUIRED", "name": "depth_km", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "source_url", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "raw_json", "type": "JSON"}
+    { "mode" : "REQUIRED", "name" : "ingestion_id", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "ingestion_time", "type" : "TIMESTAMP" },
+    { "mode" : "REQUIRED", "name" : "event_id", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "event_time", "type" : "TIMESTAMP" },
+    { "mode" : "NULLABLE", "name" : "updated", "type" : "TIMESTAMP" },
+    { "mode" : "NULLABLE", "name" : "mag", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "mag_type", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "place", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "lon", "type" : "FLOAT64" },
+    { "mode" : "REQUIRED", "name" : "lat", "type" : "FLOAT64" },
+    { "mode" : "REQUIRED", "name" : "depth_km", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "source_url", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "raw_json", "type" : "JSON" }
   ])
 }
 
@@ -181,8 +181,8 @@ resource "google_bigquery_table" "_stg_usgs" {
   table_id   = "_stg_usgs"
 
   time_partitioning {
-    type                     = "DAY"
-    field                    = "event_time"
+    type  = "DAY"
+    field = "event_time"
     # require_partition_filter = true  # Hafta 3 maliyet optimizasyonunda aktif edilecek
   }
 
@@ -191,32 +191,32 @@ resource "google_bigquery_table" "_stg_usgs" {
   # Explicit schema — raw tablodan referans yerine inline şema kullanılır
   # çünkü BQ FLOAT64'ü FLOAT olarak döner, şema karşılaştırması tutmaz.
   schema = jsonencode([
-    {"mode": "REQUIRED", "name": "ingestion_id", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "ingestion_time", "type": "TIMESTAMP"},
-    {"mode": "REQUIRED", "name": "event_id", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "event_time", "type": "TIMESTAMP"},
-    {"mode": "NULLABLE", "name": "updated", "type": "TIMESTAMP"},
-    {"mode": "NULLABLE", "name": "mag", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "mag_type", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "place", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "status", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "tsunami", "type": "INTEGER"},
-    {"mode": "NULLABLE", "name": "sig", "type": "INTEGER"},
-    {"mode": "NULLABLE", "name": "net", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "nst", "type": "INTEGER"},
-    {"mode": "NULLABLE", "name": "dmin", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "rms", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "gap", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "type", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "alert", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "cdi", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "mmi", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "felt", "type": "INTEGER"},
-    {"mode": "REQUIRED", "name": "lon", "type": "FLOAT64"},
-    {"mode": "REQUIRED", "name": "lat", "type": "FLOAT64"},
-    {"mode": "REQUIRED", "name": "depth_km", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "source_url", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "raw_json", "type": "JSON"}
+    { "mode" : "REQUIRED", "name" : "ingestion_id", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "ingestion_time", "type" : "TIMESTAMP" },
+    { "mode" : "REQUIRED", "name" : "event_id", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "event_time", "type" : "TIMESTAMP" },
+    { "mode" : "NULLABLE", "name" : "updated", "type" : "TIMESTAMP" },
+    { "mode" : "NULLABLE", "name" : "mag", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "mag_type", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "place", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "status", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "tsunami", "type" : "INTEGER" },
+    { "mode" : "NULLABLE", "name" : "sig", "type" : "INTEGER" },
+    { "mode" : "NULLABLE", "name" : "net", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "nst", "type" : "INTEGER" },
+    { "mode" : "NULLABLE", "name" : "dmin", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "rms", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "gap", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "type", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "alert", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "cdi", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "mmi", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "felt", "type" : "INTEGER" },
+    { "mode" : "REQUIRED", "name" : "lon", "type" : "FLOAT64" },
+    { "mode" : "REQUIRED", "name" : "lat", "type" : "FLOAT64" },
+    { "mode" : "REQUIRED", "name" : "depth_km", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "source_url", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "raw_json", "type" : "JSON" }
   ])
 }
 
@@ -226,8 +226,8 @@ resource "google_bigquery_table" "_stg_kandilli" {
   table_id   = "_stg_kandilli"
 
   time_partitioning {
-    type                     = "DAY"
-    field                    = "date_time"
+    type  = "DAY"
+    field = "date_time"
     # require_partition_filter = true  # Hafta 3 maliyet optimizasyonunda aktif edilecek
   }
 
@@ -235,23 +235,23 @@ resource "google_bigquery_table" "_stg_kandilli" {
 
   # Explicit schema — raw tablodan referans yerine inline şema
   schema = jsonencode([
-    {"mode": "REQUIRED", "name": "ingestion_id", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "ingestion_time", "type": "TIMESTAMP"},
-    {"mode": "REQUIRED", "name": "earthquake_id", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "date_time", "type": "TIMESTAMP"},
-    {"mode": "NULLABLE", "name": "created_at", "type": "TIMESTAMP"},
-    {"mode": "NULLABLE", "name": "mag", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "depth_km", "type": "FLOAT64"},
-    {"mode": "REQUIRED", "name": "lon", "type": "FLOAT64"},
-    {"mode": "REQUIRED", "name": "lat", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "title", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "location_tz", "type": "STRING"},
-    {"mode": "REQUIRED", "name": "provider", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "epi_center_name", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "epi_center_population", "type": "INTEGER"},
-    {"mode": "NULLABLE", "name": "closest_city_name", "type": "STRING"},
-    {"mode": "NULLABLE", "name": "closest_city_distance_km", "type": "FLOAT64"},
-    {"mode": "NULLABLE", "name": "location_properties", "type": "JSON"},
-    {"mode": "NULLABLE", "name": "raw_json", "type": "JSON"}
+    { "mode" : "REQUIRED", "name" : "ingestion_id", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "ingestion_time", "type" : "TIMESTAMP" },
+    { "mode" : "REQUIRED", "name" : "earthquake_id", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "date_time", "type" : "TIMESTAMP" },
+    { "mode" : "NULLABLE", "name" : "created_at", "type" : "TIMESTAMP" },
+    { "mode" : "NULLABLE", "name" : "mag", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "depth_km", "type" : "FLOAT64" },
+    { "mode" : "REQUIRED", "name" : "lon", "type" : "FLOAT64" },
+    { "mode" : "REQUIRED", "name" : "lat", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "title", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "location_tz", "type" : "STRING" },
+    { "mode" : "REQUIRED", "name" : "provider", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "epi_center_name", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "epi_center_population", "type" : "INTEGER" },
+    { "mode" : "NULLABLE", "name" : "closest_city_name", "type" : "STRING" },
+    { "mode" : "NULLABLE", "name" : "closest_city_distance_km", "type" : "FLOAT64" },
+    { "mode" : "NULLABLE", "name" : "location_properties", "type" : "JSON" },
+    { "mode" : "NULLABLE", "name" : "raw_json", "type" : "JSON" }
   ])
 }
