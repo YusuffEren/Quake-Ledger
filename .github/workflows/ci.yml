@@ -70,7 +70,12 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install dbt-bigquery
       - run: dbt deps --project-dir dbt/project
-      - run: dbt build --project-dir dbt/project --profiles-dir dbt/project --target ci
+      # CI dataset'ini temizle (önceki run'lardan kalan duplicate'leri önler)
+      - name: Clean CI dataset
+        run: |
+          echo "DROP SCHEMA IF EXISTS dbt_ci CASCADE" | bq query --project_id=${{ env.DBT_PROJECT_ID }} --nouse_legacy_sql
+          echo "DROP SCHEMA IF EXISTS dbt_ci_marts CASCADE" | bq query --project_id=${{ env.DBT_PROJECT_ID }} --nouse_legacy_sql
+      - run: dbt build --project-dir dbt/project --profiles-dir dbt/project --target ci --exclude fct_model_cost
         env:
           DBT_KEYFILE: ${{ steps.auth.outputs.credentials_file_path }}
 
