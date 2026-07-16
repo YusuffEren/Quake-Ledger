@@ -15,25 +15,26 @@
 ) }}
 
 {% if is_incremental() %}
-  {% set max_date = "DATE(MAX(event_time)) FROM " ~ ref('stg_usgs_earthquakes') %}
+    {% set max_date = "DATE(MAX(event_time)) FROM "
+        ~ ref('stg_usgs_earthquakes') %}
 {% endif %}
 
 WITH source_usgs AS (
     SELECT
         DATE(event_time) AS event_date,
-        'usgs' AS source,
+        'usgs' AS `source`,
         mag AS magnitude,
         earthquake_id AS event_id
     FROM {{ ref('stg_usgs_earthquakes') }}
     {% if is_incremental() %}
-    WHERE DATE(event_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
+        WHERE DATE(event_time) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
     {% endif %}
 ),
 
 source_emsc AS (
     SELECT
         DATE(event_time) AS event_date,
-        'emsc' AS source,
+        'emsc' AS `source`,
         mag AS magnitude,
         earthquake_id AS event_id
     FROM {{ ref('stg_emsc_earthquakes') }}
@@ -42,7 +43,7 @@ source_emsc AS (
 source_kandilli AS (
     SELECT
         DATE(event_time) AS event_date,
-        'kandilli' AS source,
+        'kandilli' AS `source`,
         mag AS magnitude,
         earthquake_id AS event_id
     FROM {{ ref('stg_kandilli_earthquakes') }}

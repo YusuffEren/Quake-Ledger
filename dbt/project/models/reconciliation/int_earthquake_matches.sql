@@ -1,6 +1,6 @@
--- NOT: Bu model CROSS JOIN kullanır (O(n×m)). Minik hacimde (~1000 kayıt) sorunsuzdur.
--- Bilinçli tradeoff: Production'da time-bucket (dakika yuvarlama) + geohash ön filtresi
--- ile CROSS JOIN öncesi aday sayısı daraltılmalıdır.
+-- NOT: Bu model CROSS JOIN kullanır (O(n×m)). Minik hacimde sorunsuzdur.
+-- Bilinçli tradeoff: Production'da time-bucket + geohash ön filtresi
+-- ile CROSS JOIN öncesi aday sayısı daraltılmalı.
 -- Güncel hacimde bu optimizasyon gereksizdir, okunabilirlik korunmuştur.
 
 -- int_earthquake_matches
@@ -57,20 +57,21 @@ candidates AS (
         k.place AS kandilli_place,
 
         -- Zaman farkı (saniye)
-        ABS(TIMESTAMP_DIFF(u.event_time, k.event_time, SECOND)) AS time_diff_seconds,
+        ABS(TIMESTAMP_DIFF(u.event_time, k.event_time, SECOND))
+            AS time_diff_seconds,
 
         -- Haversine mesafesi (km)
         6371 * 2 * ASIN(SQRT(
-            POW(SIN((k.lat - u.lat) * ACOS(-1) / 360), 2) +
-            COS(u.lat * ACOS(-1) / 180) * COS(k.lat * ACOS(-1) / 180) *
-            POW(SIN((k.lon - u.lon) * ACOS(-1) / 360), 2)
+            POW(SIN((k.lat - u.lat) * ACOS(-1) / 360), 2)
+            + COS(u.lat * ACOS(-1) / 180) * COS(k.lat * ACOS(-1) / 180)
+            * POW(SIN((k.lon - u.lon) * ACOS(-1) / 360), 2)
         )) AS distance_km,
 
         -- Büyüklük farkı
         ABS(COALESCE(u.mag, 0) - COALESCE(k.mag, 0)) AS mag_diff
 
-    FROM usgs u
-    CROSS JOIN kandilli k
+    FROM usgs AS u
+    CROSS JOIN kandilli AS k
     -- Zaman filtresi (performans için cross-join öncesi daraltma)
     WHERE ABS(TIMESTAMP_DIFF(u.event_time, k.event_time, SECOND)) <= 600
 ),
@@ -88,9 +89,10 @@ matches AS (
             ORDER BY distance_km ASC, time_diff_seconds ASC
         ) AS rn_kandilli
     FROM candidates
-    WHERE time_diff_seconds <= 120        -- Max 2 dakika fark
-      AND distance_km <= 50              -- Max 50 km mesafe
-      AND mag_diff <= 1.0                -- Max 1.0 büyüklük farkı
+    WHERE
+        time_diff_seconds <= 120        -- Max 2 dakika fark
+        AND distance_km <= 50              -- Max 50 km mesafe
+        AND mag_diff <= 1.0                -- Max 1.0 büyüklük farkı
 ),
 
 -- En iyi eşleşmeyi seç (bir USGS event'i en fazla bir Kandilli ile eşleşir)
@@ -118,7 +120,8 @@ best_matches AS (
 ),
 
 -- Eşleşmeyen USGS event'leri
--- NOT: BigQuery'de NULL tipi INT64'tür — UNION ALL'da tip uyuşmazlığını önlemek için CAST kullanılır.
+-- NOT: BigQuery'de NULL tipi INT64'tür — UNION ALL'da tip uyuşmazlığı
+-- için CAST kullanılır.
 usgs_only AS (
     SELECT
         CONCAT(earthquake_id, '_none') AS match_id,
@@ -140,7 +143,8 @@ usgs_only AS (
         CAST(NULL AS FLOAT64) AS mag_diff
     FROM usgs
     WHERE earthquake_id NOT IN (
-        SELECT usgs_id FROM best_matches WHERE usgs_id IS NOT NULL
+        SELECT best_matches.usgs_id FROM best_matches
+        WHERE best_matches.usgs_id IS NOT NULL
     )
 ),
 
@@ -166,7 +170,8 @@ kandilli_only AS (
         CAST(NULL AS FLOAT64) AS mag_diff
     FROM kandilli
     WHERE earthquake_id NOT IN (
-        SELECT kandilli_id FROM best_matches WHERE kandilli_id IS NOT NULL
+        SELECT best_matches.kandilli_id FROM best_matches
+        WHERE best_matches.kandilli_id IS NOT NULL
     )
 ),
 

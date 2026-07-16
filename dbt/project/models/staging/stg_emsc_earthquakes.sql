@@ -9,7 +9,8 @@ WITH source AS (
 ),
 
 dedup AS (
-    SELECT *,
+    SELECT
+        *,
         ROW_NUMBER() OVER (
             PARTITION BY event_id
             ORDER BY ingestion_time DESC, updated DESC NULLS LAST
@@ -20,7 +21,7 @@ dedup AS (
 normalized AS (
     SELECT
         event_id AS earthquake_id,
-        'emsc' AS source,
+        'emsc' AS `source`,
         event_time,
         mag,
         depth_km,

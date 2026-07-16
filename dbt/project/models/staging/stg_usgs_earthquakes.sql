@@ -9,7 +9,8 @@ WITH source AS (
 
 dedup AS (
     -- Aynı event_id için en son ingestion'ı al (idempotent quality)
-    SELECT *,
+    SELECT
+        *,
         ROW_NUMBER() OVER (
             PARTITION BY event_id
             ORDER BY ingestion_time DESC, updated DESC NULLS LAST
@@ -21,7 +22,7 @@ normalized AS (
     SELECT
         -- Ortak alanlar
         event_id AS earthquake_id,
-        'usgs' AS source,
+        'usgs' AS `source`,
         event_time,
         mag,
         depth_km,

@@ -9,7 +9,8 @@ WITH source AS (
 
 dedup AS (
     -- Aynı earthquake_id için en son ingestion'ı al
-    SELECT *,
+    SELECT
+        *,
         ROW_NUMBER() OVER (
             PARTITION BY earthquake_id
             ORDER BY ingestion_time DESC, created_at DESC NULLS LAST
@@ -21,7 +22,7 @@ normalized AS (
     SELECT
         -- Ortak alanlar
         earthquake_id,
-        'kandilli' AS source,
+        'kandilli' AS `source`,
         date_time AS event_time,
         mag,
         depth_km,
