@@ -9,6 +9,9 @@ lint-sql:
 	sqlfluff lint dbt/project/models/ --dialect bigquery
 
 test:
+	python -m pytest tests/ -q
+
+test-coverage:
 	python -m pytest --cov=src/ingestion --cov-report=term-missing tests/ -q
 
 # coverage — coverage raporunu HTML olarak da üretir (htmlcov/).

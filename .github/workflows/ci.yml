@@ -44,8 +44,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
         with: { terraform_version: "1.8" }
-      - run: terraform init -backend=false terraform/
-      - run: terraform validate terraform/
+      - run: terraform -chdir=terraform init -backend=false
+      - run: terraform -chdir=terraform validate
 
   lint-sql:
     runs-on: ubuntu-latest
