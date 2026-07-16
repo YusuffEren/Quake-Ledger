@@ -60,7 +60,6 @@ jobs:
   dbt-build:
     runs-on: ubuntu-latest
     needs: [lint-sql]
-    if: env.DBT_PROJECT_ID != ''
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
