@@ -16,3 +16,6 @@ gcp-key.json
 dbt/project/target/
 dbt/project/logs/
 dbt/project/.user.yml
+
+# Python test cache — pytest calistirma artifact'i, commit edilmemeli
+.pytest_cache/

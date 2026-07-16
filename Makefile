@@ -1,4 +1,4 @@
-.PHONY: lint test docker-build terraform-plan terraform-apply terraform-init dbt-build dbt-test lint-sql cost-regression cost-baseline
+.PHONY: lint test docker-build terraform-plan terraform-apply terraform-init dbt-build dbt-test lint-sql cost-regression cost-baseline zip
 
 lint:
 	ruff check src/ tests/
@@ -43,3 +43,13 @@ terraform-apply:
 
 terraform-init:
 	cd terraform && terraform init
+
+# Guvenli dagitim arsivi: sadece git tarafindan takip edilen (commit'li)
+# dosyalari paketler. Untracked/ignored dosyalar (gcp-key.json, .gcloud/,
+# .pytest_cache/, dbt target/logs artifact'lari) asla dahil edilmez cunku
+# git archive sadece HEAD agacindan okur. dbt build artifact'lari (target/,
+# logs/) artik git tarafindan takip edilmedigi icin ek pathspec exception'a
+# gerek yok (bkz. P0-3 guvenlik temizligi raporu).
+zip:
+	git archive --format=zip -o quake-ledger.zip HEAD -- .
+	@echo "quake-ledger.zip olusturuldu (sadece commit'li dosyalar)"
