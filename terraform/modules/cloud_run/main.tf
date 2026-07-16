@@ -1,7 +1,7 @@
 # Ingestion servisi için service account — least-privilege IAM.
 resource "google_service_account" "ingestion_sa" {
-  account_id  = "quake-ingestion-sa"
-  project     = var.project_id
+  account_id   = "quake-ingestion-sa"
+  project      = var.project_id
   display_name = "Quake-Ledger ingestion service account"
 }
 
@@ -43,9 +43,9 @@ resource "google_cloud_run_service" "ingestion" {
 
   template {
     spec {
-      service_account_name = google_service_account.ingestion_sa.email
+      service_account_name  = google_service_account.ingestion_sa.email
       container_concurrency = 1
-      timeout_seconds      = 300
+      timeout_seconds       = 300
 
       containers {
         image = var.cloud_run_image
@@ -82,8 +82,8 @@ resource "google_cloud_run_service" "ingestion" {
             path = "/health"
           }
           initial_delay_seconds = 10
-          timeout_seconds        = 5
-          period_seconds         = 10
+          timeout_seconds       = 5
+          period_seconds        = 10
         }
       }
     }
