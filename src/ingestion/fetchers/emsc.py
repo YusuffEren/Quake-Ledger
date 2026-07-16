@@ -3,6 +3,7 @@
 EMSC, USGS'den farklı bir ölçüm ağı kullanır. Aynı depremi farklı
 büyüklükte raporlayabilir → reconciliation hikâyesi için ideal ikinci kaynak.
 """
+
 import logging
 from datetime import datetime, timezone
 from typing import List, Tuple
@@ -64,9 +65,7 @@ class EMSCFetcher(BaseFetcher):
                 headers={"User-Agent": "QuakeLedger/1.0 (contact@project)"},
             )
             if response.status_code != 200:
-                raise httpx.HTTPError(
-                    f"EMSC returned status {response.status_code}"
-                )
+                raise httpx.HTTPError(f"EMSC returned status {response.status_code}")
             return response
 
     async def fetch(self) -> Tuple[List[EarthquakeEvent], dict]:

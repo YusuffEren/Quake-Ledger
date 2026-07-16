@@ -62,7 +62,9 @@ def _parse_istanbul_to_utc(value) -> Optional[datetime]:
             except ValueError as e:
                 logger.warning(f"Kandilli timestamp parse failed: {value!r} ({e})")
                 return None
-    logger.warning(f"Kandilli timestamp unexpected type: {type(value).__name__} ({value!r})")
+    logger.warning(
+        f"Kandilli timestamp unexpected type: {type(value).__name__} ({value!r})"
+    )
     return None
 
 
@@ -84,7 +86,6 @@ class KandilliFetcher(BaseFetcher):
         if wait > 0:
             logger.info(f"Kandilli rate-limit: sleeping {wait:.1f}s")
             await asyncio.sleep(wait)
-        self._last_request_ts = time.monotonic()
 
     @_RETRY_DECORATOR
     async def _get(self) -> httpx.Response:
@@ -115,6 +116,11 @@ class KandilliFetcher(BaseFetcher):
         except httpx.HTTPError as e:
             logger.error(f"Kandilli HTTP error: {e}")
             raise
+
+        # Başarılı yanıt alındı (200 veya 304) — rate-limit penceresi
+        # ancak şimdi başlamalı. Request öncesi set edilseydi, başarısız bir
+        # denemeden sonra bekleme süresi yanlış kısalmış olurdu.
+        self._last_request_ts = time.monotonic()
 
         # 304 → içerik değişmemiş, boş liste + boş dict dön.
         if response.status_code == 304:
@@ -148,7 +154,14 @@ class KandilliFetcher(BaseFetcher):
             lon = coords[0] if len(coords) > 0 else None
             lat = coords[1] if len(coords) > 1 else None
             # Derinlik item.depth veya coords[2] fallback — API'ler farklı format dönebilir.
-            depth_km = item.get("depth") or (coords[2] if len(coords) > 2 else None)
+            # `or` kullanılmaz: 0.0 (yüzey depremi) falsy'dir, fallback'e kayar ve
+            # gerçekte 0.0 olan derinlik None olurdu. `is not None` ile net kontrol.
+            depth_val = item.get("depth")
+            depth_km = (
+                depth_val
+                if depth_val is not None
+                else (coords[2] if len(coords) > 2 else None)
+            )
             if isinstance(depth_km, (int, float)):
                 depth_km = float(depth_km)
 

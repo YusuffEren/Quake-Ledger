@@ -8,9 +8,10 @@ sources:
       - name: usgs_earthquakes
         description: "Ham USGS deprem verisi — ingestion servisi tarafından doldurulur"
         config:
+          # USGS 15dk'da bir çekilir; 180dk uyarı / 240dk hata — ~12-16 döngü kaçırıldığında alarm.
           freshness:
-            warn_after: { count: 30, period: minute }
-            error_after: { count: 120, period: minute }
+            warn_after: { count: 180, period: minute }
+            error_after: { count: 240, period: minute }
           loaded_at_field: ingestion_time
         columns:
           - name: event_id
@@ -20,9 +21,10 @@ sources:
       - name: emsc_earthquakes
         description: "Ham EMSC deprem verisi (FDSN GeoJSON) — ingestion servisi tarafından doldurulur"
         config:
+          # EMSC daha seyrek/sponsor'lu kaynak; pencereyi USGS/Kandilli'den geniş tut.
           freshness:
-            warn_after: { count: 30, period: minute }
-            error_after: { count: 120, period: minute }
+            warn_after: { count: 360, period: minute }
+            error_after: { count: 480, period: minute }
           loaded_at_field: ingestion_time
         columns:
           - name: event_id
@@ -32,9 +34,10 @@ sources:
       - name: kandilli_earthquakes
         description: "Ham Kandilli deprem verisi — ingestion servisi tarafından doldurulur"
         config:
+          # Kandilli topluluk proxy'si üzerinden gelir; USGS ile aynı SLA.
           freshness:
-            warn_after: { count: 30, period: minute }
-            error_after: { count: 120, period: minute }
+            warn_after: { count: 180, period: minute }
+            error_after: { count: 240, period: minute }
           loaded_at_field: ingestion_time
         columns:
           - name: earthquake_id

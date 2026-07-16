@@ -1,38 +1,67 @@
 # Quake-Ledger
 
-Canlı deprem verisi üzerine **GCP free tier**'da çalışan, tam gözlemlenebilirlikli, CI'da veri kontratı ve maliyet regresyon testi olan bir **data engineering pipeline**'ı.
+Canlı deprem verisi üzerine **GCP free tier**'da çalışan, structured logging ile gözlemlenebilir, CI'da veri kontratı ve maliyet regresyon testi olan bir **data engineering pipeline**'ı.
 
 ```
-                      ┌─────────────────┐
-   Cloud Scheduler ──▶│  Cloud Run       │──▶ USGS + Kandilli API
-   (*/15 dk)          │  (ingestion)     │──▶ GCS (ham JSON)
-                      └────────┬─────────┘
-                               │ BigQuery (MERGE)
-                               ▼
-                      ┌──────────────────┐
-                      │  BigQuery Raw     │  ← ham, immutable
-                      └────────┬─────────┘
-                               │
-                      ┌────────▼─────────┐
-                      │  dbt Staging      │  ← normalize views
-                      └────────┬─────────┘
-                               │
-                      ┌────────▼─────────┐
-                      │  dbt Reconcil.    │  ← Haversine eşleştirme
-                      └────────┬─────────┘
-                               │
-                      ┌────────▼─────────┐
-                      │  dbt Marts        │  ← analitik tablolar
-                      └────────┬─────────┘
-                               │
-                      ┌────────▼─────────┐
-                      │  Looker Studio    │  ← dashboard
-                      │  + Cloud Logging  │  ← gözlemlenebilirlik
-                      └──────────────────┘
+   ┌──────────────────┐
+   │ Cloud Scheduler  │  (*/15 dk) ─ HTTP trigger
+   └─────────┬────────┘
+             │
+             ▼
+   ┌──────────────────────────────────────────────────┐
+   │  Cloud Run (ingestion, FastAPI)                  │
+   │  /ingest/usgs · /ingest/kandilli · /ingest/emsc  │
+   └──┬──────────────┬──────────────┬─────────────┬───┘
+      │              │              │             │
+      ▼              ▼              ▼             ▼
+   USGS API     Kandilli proxy   EMSC FDSN    GCS (ham JSON,
+   (GeoJSON)    (topluluk)       (GeoJSON)    immutable arşiv)
+      │              │              │
+      └──────────────┴──────────────┘
+                     │  BigQuery MERGE (idempotent)
+                     ▼
+   ┌──────────────────────────────────────────────────┐
+   │  BigQuery Raw                                    │
+   │  raw.usgs_earthquakes · raw.kandilli_earthquakes  │
+   │  raw.emsc_earthquakes                            │
+   └────────────────────┬─────────────────────────────┘
+                        │
+   ┌────────────────────▼─────────────────────────────┐
+   │  dbt Staging  (stg_*_earthquakes)                 │  normalize views
+   └────────────────────┬─────────────────────────────┘
+                        │
+   ┌────────────────────▼─────────────────────────────┐
+   │  dbt Reconciliation                               │  Haversine eşleştirme
+   │  int_earthquake_matches → fct_unified_earthquakes │
+   └────────────────────┬─────────────────────────────┘
+                        │
+   ┌────────────────────▼─────────────────────────────┐
+   │  dbt Marts                                        │  analitik tablolar
+   │  dm_earthquake_daily · fct_model_cost            │
+   └────────────────────┬─────────────────────────────┘
+                        │
+   ┌────────────────────▼─────────────────────────────┐
+   │  Observability                                    │
+   │  Structured Cloud Logging + BigQuery sorguları    │
+   └──────────────────────────────────────────────────┘
 
-   CI/CD: GitHub Actions · lint · test · dbt build · dbt test · cost regression
-   IaC:   Terraform (GCS · BQ · Cloud Run · Scheduler · IAM)
+   Pre-commit:  ruff check --fix · ruff format  (commit öncesi, lokal)
+   CI/CD:       GitHub Actions · ruff · pytest --cov
+                · dbt build · dbt test (singular + unit tests)
+                · cost regression
+   IaC:         Terraform (GCS · BQ · Cloud Run · Scheduler · IAM)
 ```
+
+### Örnek Çıktı — `fct_unified_earthquakes`
+
+Reconciliation sonrası üretilen unified olay tablosundan örnek satırlar
+(mock data; gerçek akışta BigQuery sorgusu ile elde edilir):
+
+| unified_id | event_time (UTC) | canonical_lat | canonical_lon | canonical_mag | match_status | usgs_mag | kandilli_mag | mag_disagreement | distance_km | sources_available |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `unified_us7000abcd` | 2025-07-16 10:42:31 | 38.12 | 26.84 | 4.6 | matched | 4.7 | 4.6 | 0.10 | 3.2 | both |
+| `unified_us7000efgh` | 2025-07-16 09:15:08 | 35.74 | 28.91 | 5.2 | kandilli_only | NULL | 5.2 | NULL | NULL | kandilli |
+| `unified_us7000ijkl` | 2025-07-16 08:02:55 | 40.31 | 30.12 | 3.1 | usgs_only | 3.1 | NULL | NULL | NULL | usgs |
 
 ---
 
@@ -88,9 +117,9 @@ quake-ledger/
 │   └── modules/scheduler/     # Cloud Scheduler job'ları
 │
 ├── src/ingestion/             # Cloud Run ingestion servisi (FastAPI)
-│   ├── fetchers/              # USGS + Kandilli API fetcher
+│   ├── fetchers/              # USGS + EMSC + Kandilli API fetcher
 │   ├── storage/               # GCS + BigQuery writer
-│   └── main.py                # /health, /ingest/usgs, /ingest/kandilli
+│   └── main.py                # /health, /ingest/usgs, /ingest/emsc, /ingest/kandilli
 │
 ├── dbt/project/               # dbt dönüşüm katmanı
 │   ├── models/
@@ -117,12 +146,12 @@ quake-ledger/
 
 | Adım | Açıklama | Teknoloji |
 |---|---|---|
-| **Ingestion** | USGS + Kandilli'den 15dk'da bir veri çek | Cloud Run + Python |
+| **Ingestion** | USGS + EMSC + Kandilli'den 15dk'da bir veri çek | Cloud Run + Python |
 | **Raw Storage** | Ham JSON → GCS (immutable) + BQ (MERGE idempotent) | GCS + BigQuery |
 | **Staging** | Normalize views (ortak şema) | dbt (view) |
 | **Reconciliation** | Haversine eşleştirme + unified events | dbt (table) |
 | **Marts** | Analitik tablolar + cost metrikleri | dbt (table) |
-| **Dashboard** | Gözlemlenebilirlik panelleri | Looker Studio |
+| **Observability** | Structured logging + BigQuery sorguları | Cloud Logging |
 | **CI/CD** | lint → test → dbt build → dbt test → cost regression | GitHub Actions |
 
 ---

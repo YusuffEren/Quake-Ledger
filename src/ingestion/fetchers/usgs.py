@@ -41,9 +41,7 @@ class USGSFetcher(BaseFetcher):
             )
             # 200 dışı durumlar retry'ı tetiklemeli — HTTPError raise ediyoruz.
             if response.status_code != 200:
-                raise httpx.HTTPError(
-                    f"USGS returned status {response.status_code}"
-                )
+                raise httpx.HTTPError(f"USGS returned status {response.status_code}")
             return response
 
     async def fetch(self) -> Tuple[List[EarthquakeEvent], dict]:

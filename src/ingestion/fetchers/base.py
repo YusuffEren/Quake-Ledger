@@ -10,10 +10,10 @@ class BaseFetcher(ABC):
     `fetch` hem normalize edilmiş event listesi hem de ham API yanıtını döner;
     ham yanıt GCS'e raw olarak yazılacak, event listesi BQ'ya transform edilecek.
     """
+
     @property
     @abstractmethod
-    def source_name(self) -> str:
-        ...
+    def source_name(self) -> str: ...
 
     @abstractmethod
     async def fetch(self) -> Tuple[List[EarthquakeEvent], dict]:

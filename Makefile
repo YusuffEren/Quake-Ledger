@@ -1,4 +1,4 @@
-.PHONY: lint test docker-build terraform-plan terraform-apply terraform-init dbt-build dbt-test lint-sql cost-regression cost-baseline zip
+.PHONY: lint test docker-build terraform-plan terraform-apply terraform-init dbt-build dbt-test lint-sql cost-regression cost-baseline zip pre-commit-install pre-commit-run coverage
 
 lint:
 	ruff check src/ tests/
@@ -9,7 +9,22 @@ lint-sql:
 	sqlfluff lint dbt/project/models/ --dialect bigquery
 
 test:
-	python -m pytest tests/
+	python -m pytest --cov=src/ingestion --cov-report=term-missing tests/ -q
+
+# coverage — coverage raporunu HTML olarak da üretir (htmlcov/).
+# HTML raporu ignore edilmiştir (aşağıda .gitignore'a güveniyoruz).
+coverage:
+	python -m pytest --cov=src/ingestion --cov-report=term-missing --cov-report=html tests/ -q
+
+# pre-commit — takım içi ilk çalıştırmada hook'ları yükler, sonrasında
+# elle tetiklemek için kullanılır. CI'da pre-commit-hooks action'ı ayrı
+# çalışır; bu hedef geliştirici makineleri içindir.
+pre-commit-install:
+	pip install pre-commit
+	pre-commit install
+
+pre-commit-run:
+	pre-commit run --all-files
 
 dbt-deps:
 	cd dbt/project && dbt deps

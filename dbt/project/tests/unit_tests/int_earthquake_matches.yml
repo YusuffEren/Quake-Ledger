@@ -1,0 +1,363 @@
+version: 2
+
+unit_tests:
+  # a) Eşleşen çift: USGS ve Kandilli aynı depremi bildiriyor
+  - name: test_matching_pair
+    model: int_earthquake_matches
+    description: >
+      Aynı konum (distance ~0 km), 30 sn zaman farkı, 0.1 büyüklük farkı.
+      Beklenen: match_status='matched'.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_match_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 4.8, lon: 35.0, lat: 39.0, place: 'Near Test' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_match_1', source: 'kandilli', event_time: '2026-07-15 12:00:30', mag: 4.9, lon: 35.0, lat: 39.0, place: 'Yakin Test' }
+    expect:
+      rows:
+        - match_id: 'usgs_match_1_kandilli_match_1'
+          match_status: 'matched'
+          usgs_id: 'usgs_match_1'
+          kandilli_id: 'kandilli_match_1'
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: '2026-07-15 12:00:30'
+          usgs_mag: 4.8
+          kandilli_mag: 4.9
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: 'Near Test'
+          kandilli_place: 'Yakin Test'
+          time_diff_seconds: 30
+          distance_km: 0.0
+          mag_diff: 0.10000000000000053
+
+  # b) Zaman aşımı: zaman farkı > 120 sn
+  - name: test_time_threshold_exceeded
+    model: int_earthquake_matches
+    description: >
+      Aynı konum, fakat 121 sn zaman farkı. Eşik 120 sn olduğundan eşleşmemeli.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_time_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 4.8, lon: 35.0, lat: 39.0, place: 'Time Test' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_time_1', source: 'kandilli', event_time: '2026-07-15 12:02:01', mag: 4.9, lon: 35.0, lat: 39.0, place: 'Zaman Test' }
+    expect:
+      rows:
+        - match_id: 'usgs_time_1_none'
+          match_status: 'usgs_only'
+          usgs_id: 'usgs_time_1'
+          kandilli_id: null
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: null
+          usgs_mag: 4.8
+          kandilli_mag: null
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: null
+          kandilli_lat: null
+          usgs_place: 'Time Test'
+          kandilli_place: null
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+        - match_id: 'none_kandilli_time_1'
+          match_status: 'kandilli_only'
+          usgs_id: null
+          kandilli_id: 'kandilli_time_1'
+          usgs_time: null
+          kandilli_time: '2026-07-15 12:02:01'
+          usgs_mag: null
+          kandilli_mag: 4.9
+          usgs_lon: null
+          usgs_lat: null
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: null
+          kandilli_place: 'Zaman Test'
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+
+  # c) Mesafe aşımı: mesafe > 50 km
+  - name: test_distance_threshold_exceeded
+    model: int_earthquake_matches
+    description: >
+      60 sn zaman farkı, fakat 0.5° enlem farkı (~55.6 km) > 50 km.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_far_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 4.8, lon: 35.0, lat: 39.0, place: 'Far USGS' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_far_1', source: 'kandilli', event_time: '2026-07-15 12:01:00', mag: 4.9, lon: 35.0, lat: 39.5, place: 'Far Kandilli' }
+    expect:
+      rows:
+        - match_id: 'usgs_far_1_none'
+          match_status: 'usgs_only'
+          usgs_id: 'usgs_far_1'
+          kandilli_id: null
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: null
+          usgs_mag: 4.8
+          kandilli_mag: null
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: null
+          kandilli_lat: null
+          usgs_place: 'Far USGS'
+          kandilli_place: null
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+        - match_id: 'none_kandilli_far_1'
+          match_status: 'kandilli_only'
+          usgs_id: null
+          kandilli_id: 'kandilli_far_1'
+          usgs_time: null
+          kandilli_time: '2026-07-15 12:01:00'
+          usgs_mag: null
+          kandilli_mag: 4.9
+          usgs_lon: null
+          usgs_lat: null
+          kandilli_lon: 35.0
+          kandilli_lat: 39.5
+          usgs_place: null
+          kandilli_place: 'Far Kandilli'
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+
+  # d) USGS only: Kandilli'de olmayan deprem
+  - name: test_usgs_only
+    model: int_earthquake_matches
+    description: >
+      Sadece USGS kaydı var. match_status='usgs_only'.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_only_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 4.8, lon: 35.0, lat: 39.0, place: 'Only USGS' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows: []
+    expect:
+      rows:
+        - match_id: 'usgs_only_1_none'
+          match_status: 'usgs_only'
+          usgs_id: 'usgs_only_1'
+          kandilli_id: null
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: null
+          usgs_mag: 4.8
+          kandilli_mag: null
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: null
+          kandilli_lat: null
+          usgs_place: 'Only USGS'
+          kandilli_place: null
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+
+  # e) Kandilli only: USGS'de olmayan deprem
+  - name: test_kandilli_only
+    model: int_earthquake_matches
+    description: >
+      Sadece Kandilli kaydı var. match_status='kandilli_only'.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows: []
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_only_1', source: 'kandilli', event_time: '2026-07-15 12:00:00', mag: 4.8, lon: 35.0, lat: 39.0, place: 'Only Kandilli' }
+    expect:
+      rows:
+        - match_id: 'none_kandilli_only_1'
+          match_status: 'kandilli_only'
+          usgs_id: null
+          kandilli_id: 'kandilli_only_1'
+          usgs_time: null
+          kandilli_time: '2026-07-15 12:00:00'
+          usgs_mag: null
+          kandilli_mag: 4.8
+          usgs_lon: null
+          usgs_lat: null
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: null
+          kandilli_place: 'Only Kandilli'
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+
+  # f) Aynı anda çalışma: hem USGS hem Kandilli event'leri var, bazıları eşleşiyor bazıları eşleşmiyor
+  - name: test_mixed_scenario
+    model: int_earthquake_matches
+    description: >
+      u1-k1 eşleşir (30 sn, aynı nokta); u2-k2 zaman farkı 121 sn olduğundan eşleşmez.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_mix_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 5.0, lon: 35.0, lat: 39.0, place: 'USGS Mix 1' }
+          - { earthquake_id: 'usgs_mix_2', source: 'usgs', event_time: '2026-07-15 12:05:00', mag: 4.0, lon: 35.0, lat: 39.0, place: 'USGS Mix 2' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_mix_1', source: 'kandilli', event_time: '2026-07-15 12:00:30', mag: 5.1, lon: 35.0, lat: 39.0, place: 'Kandilli Mix 1' }
+          - { earthquake_id: 'kandilli_mix_2', source: 'kandilli', event_time: '2026-07-15 12:07:01', mag: 4.1, lon: 35.0, lat: 39.0, place: 'Kandilli Mix 2' }
+    expect:
+      rows:
+        - match_id: 'usgs_mix_1_kandilli_mix_1'
+          match_status: 'matched'
+          usgs_id: 'usgs_mix_1'
+          kandilli_id: 'kandilli_mix_1'
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: '2026-07-15 12:00:30'
+          usgs_mag: 5.0
+          kandilli_mag: 5.1
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: 'USGS Mix 1'
+          kandilli_place: 'Kandilli Mix 1'
+          time_diff_seconds: 30
+          distance_km: 0.0
+          mag_diff: 0.09999999999999964
+        - match_id: 'usgs_mix_2_none'
+          match_status: 'usgs_only'
+          usgs_id: 'usgs_mix_2'
+          kandilli_id: null
+          usgs_time: '2026-07-15 12:05:00'
+          kandilli_time: null
+          usgs_mag: 4.0
+          kandilli_mag: null
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: null
+          kandilli_lat: null
+          usgs_place: 'USGS Mix 2'
+          kandilli_place: null
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+        - match_id: 'none_kandilli_mix_2'
+          match_status: 'kandilli_only'
+          usgs_id: null
+          kandilli_id: 'kandilli_mix_2'
+          usgs_time: null
+          kandilli_time: '2026-07-15 12:07:01'
+          usgs_mag: null
+          kandilli_mag: 4.1
+          usgs_lon: null
+          usgs_lat: null
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: null
+          kandilli_place: 'Kandilli Mix 2'
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+
+  # g) Edge case: büyüklük farkı > 1.0
+  - name: test_magnitude_threshold_exceeded
+    model: int_earthquake_matches
+    description: >
+      Aynı konum ve zaman, fakat büyüklük farkı 1.1 > 1.0.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_mag_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 5.0, lon: 35.0, lat: 39.0, place: 'Mag USGS' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_mag_1', source: 'kandilli', event_time: '2026-07-15 12:00:00', mag: 3.9, lon: 35.0, lat: 39.0, place: 'Mag Kandilli' }
+    expect:
+      rows:
+        - match_id: 'usgs_mag_1_none'
+          match_status: 'usgs_only'
+          usgs_id: 'usgs_mag_1'
+          kandilli_id: null
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: null
+          usgs_mag: 5.0
+          kandilli_mag: null
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: null
+          kandilli_lat: null
+          usgs_place: 'Mag USGS'
+          kandilli_place: null
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+        - match_id: 'none_kandilli_mag_1'
+          match_status: 'kandilli_only'
+          usgs_id: null
+          kandilli_id: 'kandilli_mag_1'
+          usgs_time: null
+          kandilli_time: '2026-07-15 12:00:00'
+          usgs_mag: null
+          kandilli_mag: 3.9
+          usgs_lon: null
+          usgs_lat: null
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: null
+          kandilli_place: 'Mag Kandilli'
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null
+
+  # h) Edge case: birden fazla aday varsa en yakın mesafe kazanır
+  - name: test_deduplication_best_distance
+    model: int_earthquake_matches
+    description: >
+      Bir USGS event'ine iki Kandilli aday; en yakın olanı (0 km) seçilmeli,
+      uzak olan (1 km) kandilli_only olmalı.
+    given:
+      - input: ref('stg_usgs_earthquakes')
+        rows:
+          - { earthquake_id: 'usgs_dedup_1', source: 'usgs', event_time: '2026-07-15 12:00:00', mag: 5.0, lon: 35.0, lat: 39.0, place: 'Dedup USGS' }
+      - input: ref('stg_kandilli_earthquakes')
+        rows:
+          - { earthquake_id: 'kandilli_close_1', source: 'kandilli', event_time: '2026-07-15 12:00:00', mag: 5.1, lon: 35.0, lat: 39.0, place: 'Close Kandilli' }
+          - { earthquake_id: 'kandilli_far_2', source: 'kandilli', event_time: '2026-07-15 12:00:00', mag: 5.1, lon: 35.0, lat: 39.009, place: 'Far Kandilli' }
+    expect:
+      rows:
+        - match_id: 'usgs_dedup_1_kandilli_close_1'
+          match_status: 'matched'
+          usgs_id: 'usgs_dedup_1'
+          kandilli_id: 'kandilli_close_1'
+          usgs_time: '2026-07-15 12:00:00'
+          kandilli_time: '2026-07-15 12:00:00'
+          usgs_mag: 5.0
+          kandilli_mag: 5.1
+          usgs_lon: 35.0
+          usgs_lat: 39.0
+          kandilli_lon: 35.0
+          kandilli_lat: 39.0
+          usgs_place: 'Dedup USGS'
+          kandilli_place: 'Close Kandilli'
+          time_diff_seconds: 0
+          distance_km: 0.0
+          mag_diff: 0.09999999999999964
+        - match_id: 'none_kandilli_far_2'
+          match_status: 'kandilli_only'
+          usgs_id: null
+          kandilli_id: 'kandilli_far_2'
+          usgs_time: null
+          kandilli_time: '2026-07-15 12:00:00'
+          usgs_mag: null
+          kandilli_mag: 5.1
+          usgs_lon: null
+          usgs_lat: null
+          kandilli_lon: 35.0
+          kandilli_lat: 39.009
+          usgs_place: null
+          kandilli_place: 'Far Kandilli'
+          time_diff_seconds: null
+          distance_km: null
+          mag_diff: null

@@ -5,6 +5,16 @@ from google.cloud import bigquery
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_ingestion_id(ingestion_id: str) -> str:
+    """UUID'yi tablo adında güvenle kullanılabilir kısa sonek yapar.
+
+    Tireler tablo adında geçersiz olduğundan çıkarılır; ilk 8 karakter
+    yeterli benzersizlik sağlar ve staging tablo adını kısa tutar.
+    """
+    return ingestion_id.replace("-", "").lower()[:8]
+
+
 # Explicit schema — autodetect kapalı, kolon sırası ve tipleri sabit tutulur.
 USGS_SCHEMA: List[bigquery.SchemaField] = [
     bigquery.SchemaField("ingestion_id", "STRING", mode="REQUIRED"),
@@ -80,12 +90,17 @@ def load_to_staging(
     source: str,
     gcs_uri: str,
     schema: List[bigquery.SchemaField],
+    ingestion_id: str,
 ) -> int:
-    """GCS'teki JSONL'yi `_stg_{source}` staging tablosuna WRITE_TRUNCATE ile yükler.
+    """GCS'teki JSONL'yi ingestion'a özel `_stg_{source}_{safe_id}` staging tablosuna yükler.
 
-    Autodetect kapalıdır — schema explicit verilir, kolon sırası garanti altında.
+    Her ingestion kendi izole tablosuna yazar — aynı kaynaktan paralel
+    ingestion'lar birbirinin verisini ezemez. Autodetect kapalıdır; schema
+    explicit verilir, kolon sırası garanti altında. WRITE_TRUNCATE yalnızca
+    aynı ingestion'ın retry'ında tabloyu sıfırlamak için kullanılır.
     """
-    table_id = f"{client.project}.{dataset}._stg_{source}"
+    safe_id = _safe_ingestion_id(ingestion_id)
+    table_id = f"{client.project}.{dataset}._stg_{source}_{safe_id}"
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
         schema=schema,
@@ -111,17 +126,20 @@ def merge_to_raw(
     client: bigquery.Client,
     dataset: str,
     source: str,
+    ingestion_id: str,
 ) -> int:
     """Staging tablosunu raw tabloya MERGE ile upsert eder.
 
-    USGS: event_id + updated karşılaştırması.
-    Kandilli: earthquake_id + created_at karşılaştırması.
+    Target raw tablo sabittir; source staging tablosu ingestion'a özel
+    `_stg_{source}_{safe_id}` ile izole edilir — paralel ingestion'lar
+    çakışmaz. USGS: event_id + updated; Kandilli: earthquake_id + created_at.
     """
     project = client.project
+    safe_id = _safe_ingestion_id(ingestion_id)
 
     if source == "usgs":
         target = f"`{project}.{dataset}.usgs_earthquakes`"
-        staging = f"`{project}.{dataset}._stg_usgs`"
+        staging = f"`{project}.{dataset}._stg_usgs_{safe_id}`"
         sql = f"""
         MERGE {target} T
         USING {staging} S
@@ -157,7 +175,7 @@ def merge_to_raw(
         """
     elif source == "emsc":
         target = f"`{project}.{dataset}.emsc_earthquakes`"
-        staging = f"`{project}.{dataset}._stg_emsc`"
+        staging = f"`{project}.{dataset}._stg_emsc_{safe_id}`"
         sql = f"""
         MERGE {target} T
         USING {staging} S
@@ -180,7 +198,7 @@ def merge_to_raw(
         """
     elif source == "kandilli":
         target = f"`{project}.{dataset}.kandilli_earthquakes`"
-        staging = f"`{project}.{dataset}._stg_kandilli`"
+        staging = f"`{project}.{dataset}._stg_kandilli_{safe_id}`"
         sql = f"""
         MERGE {target} T
         USING {staging} S
@@ -210,7 +228,7 @@ def merge_to_raw(
         raise ValueError(f"Unknown source: {source}")
 
     query_job = client.query(sql)
-    result = query_job.result()  # MERGE tamamlanana kadar bekler.
+    query_job.result()  # MERGE tamamlanana kadar bekler.
     try:
         affected = (
             query_job.dml_stats.updated_row_count
@@ -226,14 +244,68 @@ def merge_to_raw(
     return affected
 
 
-def truncate_staging(
+def drop_staging(
     client: bigquery.Client,
     dataset: str,
     source: str,
+    ingestion_id: str,
 ) -> None:
-    """Staging tablosunu truncate eder — bir sonraki ingestion temiz başlasın."""
-    table_id = f"{client.project}.{dataset}._stg_{source}"
-    sql = f"TRUNCATE TABLE `{table_id}`"
+    """İngestion'a özel staging tablosunu DROP eder.
+
+    TRUNCATE yerine DROP kullanıyoruz çünkü her ingestion kendi izole
+    tablosunu yaratır; MERGE bitince tabloyu tamamen kaldırmak maliyet
+    ve şema kalıntısı bırakmaz. IF EXISTS ile idempotent'tir.
+    """
+    safe_id = _safe_ingestion_id(ingestion_id)
+    table_id = f"`{client.project}.{dataset}._stg_{source}_{safe_id}`"
+    sql = f"DROP TABLE IF EXISTS {table_id}"
     query_job = client.query(sql)
     query_job.result()
-    logger.info(f"Truncated {table_id}")
+    logger.info(f"Dropped {table_id}")
+
+
+def cleanup_orphan_staging(
+    client: bigquery.Client,
+    dataset: str,
+    source: str,
+    max_age_hours: int = 1,
+) -> int:
+    """Crash sonucu geride kalmış `_stg_{source}_*` tablolarını bulup DROP eder.
+
+    INFORMATION_SCHEMA.TABLES üzerinden prefix filtresi ve yaş kontrolü
+    yapar. max_age_hours'tan genç tabloları dokunmaz — paralel çalışan
+    ingestion'ların tablosunu silmemek için. Dropped tablo sayısını döner.
+    """
+    prefix = f"_stg_{source}_%"
+    sql = f"""
+    SELECT table_name
+    FROM `{client.project}.{dataset}.INFORMATION_SCHEMA.TABLES`
+    WHERE table_name LIKE @prefix
+      AND TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), creation_time, HOUR) >= @max_age
+    """
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("prefix", "STRING", prefix),
+            bigquery.ScalarQueryParameter("max_age", "INT64", max_age_hours),
+        ]
+    )
+    query_job = client.query(sql, job_config=job_config)
+    rows = list(query_job.result())
+
+    dropped = 0
+    for row in rows:
+        table_name = row.table_name
+        drop_sql = f"DROP TABLE IF EXISTS `{client.project}.{dataset}.{table_name}`"
+        # Her DROP ayrı try/except: tek tablo başarısız olsa bile kalan
+        # orphan'lar temizlenmeye devam etsin — aksi halde tek hata tüm
+        # cleanup'ı durdurur ve orphan tablolar birikir.
+        try:
+            client.query(drop_sql).result()
+            dropped += 1
+            logger.info(f"Cleanup dropped orphan staging table: {table_name}")
+        except Exception as e:
+            logger.error(f"Cleanup failed to drop {table_name} (continuing): {e}")
+
+    if dropped:
+        logger.info(f"Cleanup removed {dropped} orphan staging tables for {source}")
+    return dropped

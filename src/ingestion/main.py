@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from google.cloud import bigquery
@@ -16,9 +16,10 @@ from storage.bigquery import (
     EMSC_SCHEMA,
     KANDILLI_SCHEMA,
     USGS_SCHEMA,
+    cleanup_orphan_staging,
+    drop_staging,
     load_to_staging,
     merge_to_raw,
-    truncate_staging,
 )
 from storage.gcs import write_raw_json, write_staging_jsonl
 
@@ -34,7 +35,7 @@ kandilli_fetcher = KandilliFetcher()
 
 # BQ client'ı — lazy init: modül import edildiğinde değil, ilk kullanımda oluşur.
 # Böylece GCP credentials olmayan ortamlarda (test, lint) import hatası vermez.
-_bq_client: bigquery.Client | None = None
+_bq_client: Optional[bigquery.Client] = None
 
 
 def get_bq_client() -> bigquery.Client:
@@ -57,6 +58,7 @@ async def ingest_usgs():
 @app.post("/ingest/emsc")
 async def ingest_emsc():
     return await do_ingest("emsc", emsc_fetcher)
+
 
 @app.post("/ingest/kandilli")
 async def ingest_kandilli():
@@ -183,8 +185,7 @@ async def do_ingest(source: str, fetcher):
 
     # 3. Transform events → BQ rows
     bq_rows = [
-        event_to_bq_row(ev, source, ingestion_id, ingestion_time)
-        for ev in events
+        event_to_bq_row(ev, source, ingestion_id, ingestion_time) for ev in events
     ]
 
     # 4. JSONL staging → GCS
@@ -194,27 +195,56 @@ async def do_ingest(source: str, fetcher):
         logger.error(f"Staging JSONL write failed for {source}: {e}")
         raise HTTPException(status_code=500, detail=f"Staging error: {e}")
 
-    # 5. Load staging → BQ
+    # 5. Schema seçimi — bilinmeyen source programlama hatasıdır, erkenden fail et.
+    if source == "usgs":
+        schema = USGS_SCHEMA
+    elif source == "emsc":
+        schema = EMSC_SCHEMA
+    elif source == "kandilli":
+        schema = KANDILLI_SCHEMA
+    else:
+        raise ValueError(f"Unknown source: {source}")
+
+    bq = get_bq_client()
+
+    # Önceki crash'lerden kalma orphan staging tablolarını temizle.
+    # Best-effort: cleanup başarısız olursa ingestion devam etmeli —
+    # orphan temizliğinin yeni veri yazmayı engellemesi kabul edilemez.
     try:
-        schema = USGS_SCHEMA if source == "usgs" else EMSC_SCHEMA if source == "emsc" else KANDILLI_SCHEMA
-        bq = get_bq_client()
-        loaded = load_to_staging(bq, BQ_DATASET, source, staging_uri, schema)
+        cleanup_orphan_staging(bq, BQ_DATASET, source)
+    except Exception as e:
+        logger.warning(
+            f"cleanup_orphan_staging failed for {source} (best-effort, continuing): {e}"
+        )
+
+    # 6. Load staging + MERGE — kritik adımlar. Başarısız olursa veri raw
+    # tabloya yazılmamış demektir; 500 dönmek doğru davranıştır.
+    try:
+        loaded = load_to_staging(
+            bq, BQ_DATASET, source, staging_uri, schema, ingestion_id
+        )
         logger.info(f"Staging loaded: {loaded} rows")
 
-        # 6. MERGE staging → raw
-        affected = merge_to_raw(bq, BQ_DATASET, source)
+        affected = merge_to_raw(bq, BQ_DATASET, source, ingestion_id)
         logger.info(f"MERGE affected: {affected} rows")
-
-        # 7. Truncate staging
-        truncate_staging(bq, BQ_DATASET, source)
     except Exception as e:
         logger.error(f"BigQuery pipeline failed for {source}: {e}")
         raise HTTPException(status_code=500, detail=f"BigQuery error: {e}")
+
+    # 7. Drop staging — best-effort. MERGE başarılı olduğunda veri raw'dadır;
+    # staging tablosu kalıntısı bir sonraki ingestion'ın cleanup'ı veya yaş
+    # filtresi ile temizlenir. Bu yüzden DROP hatası 500'e çevrilmez.
+    try:
+        drop_staging(bq, BQ_DATASET, source, ingestion_id)
+    except Exception as e:
+        logger.error(
+            f"drop_staging failed for {source} (best-effort, returning 200): {e}"
+        )
 
     return {
         "status": "ok",
         "source": source,
         "ingestion_id": ingestion_id,
-        "events_fetched": len(events),
+        "events_processed": len(events),
         "rows_merged": affected,
     }

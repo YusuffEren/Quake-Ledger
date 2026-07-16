@@ -1,6 +1,6 @@
 """USGS fetcher birim testleri."""
+
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -52,7 +52,11 @@ async def test_fetch_happy_path(usgs_fetcher, usgs_fixture):
 @pytest.mark.asyncio
 async def test_fetch_empty_features(usgs_fetcher):
     """Hiç feature yoksa boş liste dönmeli."""
-    empty_payload = {"type": "FeatureCollection", "features": [], "metadata": {"count": 0}}
+    empty_payload = {
+        "type": "FeatureCollection",
+        "features": [],
+        "metadata": {"count": 0},
+    }
     mock_response = MagicMock(spec=httpx.Response)
     mock_response.status_code = 200
     mock_response.json.return_value = empty_payload
@@ -66,6 +70,8 @@ async def test_fetch_empty_features(usgs_fetcher):
 @pytest.mark.asyncio
 async def test_fetch_http_error_propagates(usgs_fetcher):
     """_get HTTPError fırlatınca fetch de HTTPError fırlatmalı."""
-    with patch.object(usgs_fetcher, "_get", AsyncMock(side_effect=httpx.HTTPError("500"))):
+    with patch.object(
+        usgs_fetcher, "_get", AsyncMock(side_effect=httpx.HTTPError("500"))
+    ):
         with pytest.raises(httpx.HTTPError):
             await usgs_fetcher.fetch()

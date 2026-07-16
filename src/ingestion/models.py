@@ -10,6 +10,7 @@ class EarthquakeEvent:
     Hangi alanların doldurulduğu `source` alanına bağlıdır — her kaynak yalnızca
     kendine ait kolonları set eder, diğerleri None/varsayılan kalır.
     """
+
     source: str
     event_id: str
     event_time: datetime

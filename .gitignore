@@ -4,7 +4,6 @@ __pycache__/
 *.tfstate
 *.tfstate.backup
 .terraform/
-# .terraform.lock.hcl commit edilmeli — provider versiyon kilidini garanti eder.
 *.egg-info/
 dist/
 build/
@@ -19,3 +18,8 @@ dbt/project/.user.yml
 
 # Python test cache — pytest calistirma artifact'i, commit edilmemeli
 .pytest_cache/
+
+# Coverage artifact'lari — `make coverage` / `make test` yan urunu
+.coverage
+htmlcov/
+.coverage.*

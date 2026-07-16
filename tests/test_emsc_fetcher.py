@@ -1,4 +1,5 @@
 """EMSC fetcher birim testleri."""
+
 import json
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -49,7 +50,11 @@ async def test_fetch_happy_path(emsc_fetcher, emsc_fixture):
 @pytest.mark.asyncio
 async def test_fetch_no_events(emsc_fetcher):
     """Hiç event yoksa boş liste dönmeli."""
-    empty_payload = {"type": "FeatureCollection", "features": [], "metadata": {"count": 0}}
+    empty_payload = {
+        "type": "FeatureCollection",
+        "features": [],
+        "metadata": {"count": 0},
+    }
     mock_response = MagicMock(spec=httpx.Response)
     mock_response.status_code = 200
     mock_response.json.return_value = empty_payload

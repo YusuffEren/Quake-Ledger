@@ -4,7 +4,7 @@ quake_ledger:
     dev:
       type: bigquery
       method: service-account
-      keyfile: "{{ env_var('DBT_KEYFILE', 'gcp-key.json') }}"
+      keyfile: "{{ env_var('DBT_KEYFILE', '../../gcp-key.json') }}"
       project: "{{ env_var('DBT_PROJECT_ID', 'deprem-502519') }}"
       dataset: staging  # dbt models in staging dataset
       location: EU

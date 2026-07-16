@@ -1,3 +1,8 @@
+-- NOT: Bu model CROSS JOIN kullanır (O(n×m)). Minik hacimde (~1000 kayıt) sorunsuzdur.
+-- Bilinçli tradeoff: Production'da time-bucket (dakika yuvarlama) + geohash ön filtresi
+-- ile CROSS JOIN öncesi aday sayısı daraltılmalıdır.
+-- Güncel hacimde bu optimizasyon gereksizdir, okunabilirlik korunmuştur.
+
 -- int_earthquake_matches
 -- USGS ve Kandilli arasında aynı deprem eşleştirmeleri.
 -- Eşikler: zaman <= 120sn, mesafe <= 50km (Haversine), büyüklük farkı <= 1.0

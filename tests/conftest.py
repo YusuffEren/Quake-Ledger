@@ -1,4 +1,5 @@
 """Pytest yapılandırması — import path'leri ve ortam değişkenleri."""
+
 import os
 import sys
 from pathlib import Path

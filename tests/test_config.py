@@ -1,8 +1,9 @@
 """Config birim testleri."""
-import importlib
+
 import os
 import sys
-from pathlib import Path
+
+import pytest
 
 
 def test_config_requires_project_id():
@@ -17,7 +18,6 @@ def test_config_requires_project_id():
         del sys.modules["src.ingestion.config"]
 
     try:
-        import importlib
         with pytest.raises(ValueError) as excinfo:
             import src.ingestion.config  # noqa: F401
         assert "PROJECT_ID" in str(excinfo.value)
@@ -47,6 +47,3 @@ def test_config_defaults():
     from src.ingestion import config
 
     assert config.BQ_DATASET == "raw"
-
-
-import pytest

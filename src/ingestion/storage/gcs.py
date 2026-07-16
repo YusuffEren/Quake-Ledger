@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 # Lazy singleton — `main.py`'deki `get_bq_client()` deseniyle aynı.
 _storage_client: Optional[storage.Client] = None
 
+
 def get_storage_client() -> storage.Client:
     global _storage_client
     if _storage_client is None:
@@ -71,9 +72,7 @@ def write_staging_jsonl(
     bucket = get_storage_client().bucket(bucket_name)
     path = f"raw/{source}/_staging/{ingestion_id}.jsonl"
     blob = bucket.blob(path)
-    payload = "\n".join(
-        json.dumps(row, ensure_ascii=False) for row in rows
-    )
+    payload = "\n".join(json.dumps(row, ensure_ascii=False) for row in rows)
     blob.upload_from_string(payload, content_type="application/jsonl")
     gcs_uri = f"gs://{bucket_name}/{path}"
     logger.info(f"Staging JSONL written to {gcs_uri}")

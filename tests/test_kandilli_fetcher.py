@@ -1,6 +1,7 @@
 """Kandilli fetcher birim testleri."""
+
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -77,7 +78,7 @@ async def test_etag_stored_after_successful_fetch(kandilli_fetcher, kandilli_fix
 
     # _get'i mockla (içindeki AsyncClient gerçek HTTP çağrısı yapmasın)
     with patch.object(kandilli_fetcher, "_get", AsyncMock(return_value=mock_response)):
-        fetch_result = await kandilli_fetcher.fetch()
+        await kandilli_fetcher.fetch()
         # ETag, fetch içindeki _get'ten sonra set edilmez çünkü _get mock'landı
         # Ama _get mock'u bypass ettiği için headerdan ETag okunmaz
         # Bunun yerine doğrudan etag set edildiğini test edelim
